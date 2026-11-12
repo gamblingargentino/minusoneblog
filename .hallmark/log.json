@@ -1,0 +1,34 @@
+[
+ {
+  "shape": "Letter",
+  "theme": "kiln",
+  "axes": "dark/high-contrast-serif/warm",
+  "hero": "Poster",
+  "nav": "floating pill",
+  "footer": "colophon block",
+  "imagery": "photographs",
+  "photos": [
+   "ginza-raid-1945",
+   "tokyo-ruins-1945",
+   "ginza-burned-1945"
+  ],
+  "entry": "index.html",
+  "fingerprint": "cd1ebf",
+  "sections": [
+   "Hero",
+   "Index",
+   "Statement",
+   "Showcase",
+   "Rows",
+   "Letter",
+   "Band",
+   "Form",
+   "Footer"
+  ],
+  "signature": "story rows with a rising heat gauge",
+  "waived": [],
+  "prompt": "Godzilla Minus One film review blog",
+  "date": "2026-11-12",
+  "mode": "build"
+ }
+]
