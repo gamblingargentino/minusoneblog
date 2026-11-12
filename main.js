@@ -13,8 +13,27 @@
     });
   });
 
-  /* Smooth open: the curtain lifts and the hero settles */
-  requestAnimationFrame(() => requestAnimationFrame(() => root.classList.add('ready')));
+  /* Sound toggle + roar. Browsers allow sound only after a tap, so the roar tries to autoplay, then plays on the first tap. */
+  const roar = document.getElementById('roar'), soundBtn = document.getElementById('sound');
+  let soundOn = false;
+  const setSound = (on) => { soundOn = on; soundBtn.setAttribute('aria-pressed', on); soundBtn.setAttribute('aria-label', on ? 'Couper le son' : 'Activer le son'); if (!on) roar.pause(); };
+  const playRoar = () => { roar.currentTime = 0; return roar.play().then(() => setSound(true)).catch(() => {}); };
+  soundBtn.addEventListener('click', () => { if (soundOn) setSound(false); else playRoar(); });
+
+  /* Opening: Godzilla rises smoothly out of the dark, the roar plays, then the scene dissolves into the hero */
+  const curtain = document.getElementById('curtain');
+  const ready = () => { root.classList.add('ready'); root.style.overflow = ''; setTimeout(() => curtain.remove(), 1600); };
+  if (still) { curtain.remove(); root.classList.add('ready'); }
+  else {
+    root.style.overflow = 'clip';
+    requestAnimationFrame(() => requestAnimationFrame(() => curtain.classList.add('rise')));
+    playRoar();
+    const firstTap = () => { if (!soundOn) playRoar(); };
+    addEventListener('pointerdown', firstTap, { once: true });
+    addEventListener('keydown', firstTap, { once: true });
+    const t = setTimeout(ready, 3400);
+    curtain.addEventListener('click', () => { clearTimeout(t); ready(); });
+  }
 
   /* Statement words */
   const words = document.getElementById('words');
@@ -35,7 +54,7 @@
 
   /* Poll */
   const poll = document.querySelector('.poll');
-  poll.addEventListener('submit', (e) => { e.preventDefault(); poll.querySelector('.form-status').textContent = 'Les réponses ne sont pas encore branchées : rien n’a été envoyé.'; });
+  poll.addEventListener('submit', (e) => { e.preventDefault(); const pick = poll.querySelector('input[name=film]:checked'); poll.querySelector('.form-status').textContent = pick ? `Ton choix : ${pick.nextElementSibling.textContent}. Le mien : Godzilla Minus One. (Les réponses ne sont pas encore enregistrées en ligne.)` : 'Choisis d’abord un film.'; });
 
   /* Count-up score */
   const score = document.getElementById('score');
@@ -48,6 +67,22 @@
   }, { threshold: 0.4 });
   vObs.observe(document.getElementById('verdict'));
 
+  /* Nav: mark the section in view */
+  const links = [...document.querySelectorAll('.nav-pill ul a')];
+  const navObs = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) links.forEach((a) => a.setAttribute('aria-current', a.getAttribute('href') === '#' + e.target.id)); }), { rootMargin: '-45% 0px -50% 0px' });
+  ['fiche', 'histoire', 'avis', 'verdict'].forEach((id) => navObs.observe(document.getElementById(id)));
+
+  /* Wipe reveals for pictures */
+  const wo = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.querySelectorAll(':scope > .wipe').forEach((w) => w.classList.add('wiped')); wo.unobserve(e.target); } }), { threshold: 0.15 });
+  new Set([...document.querySelectorAll('.wipe')].map((el) => el.parentElement)).forEach((p) => wo.observe(p));
+
+  /* Flip cards: only the visible face is read aloud */
+  document.querySelectorAll('.card').forEach((c) => { const sync = () => { const on = c.getAttribute('aria-pressed') === 'true'; c.querySelector('.card-front').setAttribute('aria-hidden', on); c.querySelector('.card-back').setAttribute('aria-hidden', !on); }; sync(); c.addEventListener('click', () => requestAnimationFrame(sync)); });
+
+  /* Mobile: nav hides on scroll down, returns on scroll up */
+  let lastY = scrollY; const navEl = document.querySelector('.nav');
+  addEventListener('scroll', () => { const y = scrollY; navEl.classList.toggle('nav--hidden', y > lastY && y > 200); lastY = y; }, { passive: true });
+
   /* Scroll-linked scenes */
   if (still) return;
   const hero = document.querySelector('.hero'), stmt = document.querySelector('.statement'), ride = document.querySelector('.ride'), track = document.getElementById('track'), brk = document.getElementById('breakout'), verdict = document.getElementById('verdict');
@@ -58,7 +93,7 @@
     hero.style.setProperty('--p', prog(hero).toFixed(4));
     const sp = prog(stmt); const lit = Math.round(sp * 1.25 * wEls.length);
     wEls.forEach((w, i) => { w.classList.toggle('lit', i < lit); w.classList.toggle('hot', i < lit && w.classList.contains('is-hot')); });
-    const br = brk.getBoundingClientRect(); const b = Math.min(1, Math.max(0, (innerHeight - br.top) / (innerHeight * 0.75)));
+    const br = brk.getBoundingClientRect(); const b = Math.min(1, Math.max(0, (innerHeight - br.top) / (innerHeight * 1.1)));
     brk.style.setProperty('--b', b.toFixed(4));
     if (matchMedia('(min-width: 52rem)').matches) {
       const max = track.scrollWidth - innerWidth; const rp = prog(ride);
@@ -74,8 +109,4 @@
   addEventListener('resize', () => { sizeRide(); frame(); });
   frame();
 
-  /* Nav: mark the section in view */
-  const links = [...document.querySelectorAll('.nav-pill ul a')];
-  const navObs = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) links.forEach((a) => a.setAttribute('aria-current', a.getAttribute('href') === '#' + e.target.id)); }), { rootMargin: '-45% 0px -50% 0px' });
-  ['fiche', 'histoire', 'avis', 'verdict'].forEach((id) => navObs.observe(document.getElementById(id)));
 })();

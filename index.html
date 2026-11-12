@@ -10,6 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://api.fontshare.com/v2/css?f[]=boska@500&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="images/film/cutout-roar.webp">
 <link rel="preload" as="image" href="images/film/hero.jpg">
 <link rel="stylesheet" href="style.css">
 <script>document.documentElement.classList.add('js');</script>
@@ -24,7 +25,12 @@
   </filter>
 </svg>
 
-<div class="curtain" aria-hidden="true"></div>
+<div class="curtain" id="curtain" aria-hidden="true">
+  <div class="curtain-glow"></div>
+  <img class="curtain-beast" src="images/film/cutout-roar.webp" width="952" height="815" alt="">
+  <p class="curtain-title">Minus One</p>
+  <audio id="roar" src="sounds/roar.mp3" preload="auto"></audio>
+</div>
 
 <header class="nav">
   <nav class="glass nav-pill" aria-label="Navigation principale">
@@ -35,6 +41,7 @@
       <li><a href="#avis">Mon avis</a></li>
       <li><a href="#verdict">Verdict</a></li>
     </ul>
+    <button class="sound" type="button" id="sound" aria-pressed="false" aria-label="Activer le son"><span class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span></button>
   </nav>
 </header>
 
@@ -44,7 +51,7 @@
     <div class="hero-sticky">
       <figure class="hero-media"><img src="images/film/hero.jpg" width="2000" height="1398" alt="Godzilla surgit d’une vague au-dessus d’un avion, dans Godzilla Minus One" fetchpriority="high"></figure>
       <div class="hero-copy">
-        <p class="hero-kanji blur-in" aria-hidden="true">ゴジラ-1.0</p>
+        <p class="hero-kanji blur-in">L’Écran de Minuit · Des films qui marquent, des avis qui parlent.</p>
         <h1 id="hero-title" class="split">Godzilla Minus One</h1>
         <p class="lead blur-in" style="--d: 0.5s">Un film de monstre qui parle du cœur humain.</p>
         <div class="actions blur-in" style="--d: 0.65s">
@@ -57,16 +64,17 @@
   </section>
 
   <section id="fiche" class="fiche">
-    <img class="fiche-bg" src="images/film/roar.jpg" alt="" loading="lazy">
+    <img class="fiche-bg wipe" src="images/film/roar.jpg" alt="" loading="lazy">
     <div class="container fiche-inner">
       <h2 class="reveal">Le film, en vrai</h2>
       <ul class="chips">
-        <li class="glass chip reveal" style="--i:0"><small>Réalisateur</small>Takashi Yamazaki</li>
-        <li class="glass chip reveal" style="--i:1"><small>Avec</small>Ryunosuke Kamiki, Minami Hamabe</li>
-        <li class="glass chip reveal" style="--i:2"><small>Genre</small>Kaijū, drame historique</li>
-        <li class="glass chip reveal" style="--i:3"><small>Sortie</small><time datetime="2023-11-03">3 nov. 2023</time>, Japon</li>
-        <li class="glass chip reveal" style="--i:4"><small>Époque</small>Japon, 1945 à 1947</li>
-        <li class="glass chip chip--award reveal" style="--i:5"><small>Oscar 2024</small>Meilleurs effets visuels, une première pour un film japonais</li>
+        <li class="glass chip reveal" style="--i:0"><small>Réalisateur</small><span>Takashi Yamazaki</span></li>
+        <li class="glass chip reveal" style="--i:1"><small>Avec</small><span>Ryunosuke Kamiki, Minami Hamabe</span></li>
+        <li class="glass chip reveal" style="--i:2"><small>Genre</small><span>Kaijū, drame historique</span></li>
+        <li class="glass chip reveal" style="--i:3"><small>Sortie</small><span><time datetime="2023-11-03">3 nov. 2023</time>, Japon</span></li>
+        <li class="glass chip reveal" style="--i:4"><small>Époque</small><span>Japon, 1945 à 1947</span></li>
+        <li class="glass chip reveal" style="--i:5"><small>Durée</small><span>2 h 05, produit par Toho</span></li>
+        <li class="glass chip chip--award reveal" style="--i:6"><small>Oscar 2024</small>Meilleurs effets visuels, une première pour un film japonais</li>
       </ul>
     </div>
   </section>
@@ -80,7 +88,7 @@
   <section class="breakout-sec" aria-label="Godzilla dans Ginza">
     <div class="container">
       <figure class="breakout" id="breakout">
-        <div class="breakout-frame"><img src="images/film/city.jpg" width="1525" height="858" alt="Godzilla rugit au milieu des immeubles de Ginza, dans Godzilla Minus One" loading="lazy"></div>
+        <div class="breakout-frame wipe"><img src="images/film/city.jpg" width="1525" height="858" alt="Godzilla rugit au milieu des immeubles de Ginza, dans Godzilla Minus One" loading="lazy"></div>
         <div class="breakout-top"><img class="breakout-cut" src="images/film/cutout-city.webp" width="1525" height="858" alt="" loading="lazy"></div>
       </figure>
       <p class="caption">Ginza, 1947. Il sort du cadre.</p>
@@ -91,7 +99,7 @@
     <div class="ride-sticky">
       <div class="ride-head container">
         <h2 id="ride-title">L’histoire, sans la fin</h2>
-        <p class="glass tag">Spoilers légers</p>
+        <p class="glass tag">Sans la fin</p>
       </div>
       <div class="ride-progress container" aria-hidden="true"><span class="ride-bar"><i></i></span><span class="ride-hint">Continue de scroller, ça défile sur le côté</span></div>
       <ol class="ride-track" id="track">
@@ -136,9 +144,17 @@
   <section id="avis" class="avis section">
     <div class="container">
       <div class="avis-head">
-        <h2 class="reveal">Mon avis, en quatre cartes</h2>
-        <p class="lead reveal" style="--i:1">Touche une carte pour la retourner.</p>
+        <h2 class="reveal">Mon avis</h2>
       </div>
+      <div class="review">
+        <blockquote class="pull reveal">« J’y allais pour le monstre. Je suis resté pour les humains. »</blockquote>
+        <div class="review-text">
+          <p class="reveal">Godzilla fait vraiment peur : chaque apparition est lente, lourde, et le son te traverse. Mais ce qui m’a marqué, ce sont les personnages. Kōichi est mon préféré. C’est un héros minuscule face à un monstre géant, et son vrai combat est contre sa propre honte.</p>
+          <p class="reveal">J’ai eu peur pendant les attaques, j’ai été triste devant le Japon détruit, et pendant la bataille en mer j’avais le cœur qui tapait. À la fin, c’est l’espoir qui reste.</p>
+          <p class="reveal">Ma critique : le début est un peu lent, et certains personnages secondaires sont simples. Mais le message vaut le détour : on peut toujours se relever, et le vrai monstre, c’est aussi la guerre.</p>
+        </div>
+      </div>
+      <p class="recap-label reveal">En bref, touche une carte pour la retourner.</p>
       <div class="deck">
         <button class="card reveal" style="--i:0" type="button" aria-pressed="false">
           <span class="card-face card-front"><span class="card-n">01</span><span class="card-q">Ce que j’ai aimé</span></span>
@@ -149,11 +165,15 @@
           <span class="card-face card-back">Kōichi. Un héros minuscule face à un monstre géant, dont le vrai combat est intérieur.</span>
         </button>
         <button class="card reveal" style="--i:2" type="button" aria-pressed="false">
-          <span class="card-face card-front"><span class="card-n">03</span><span class="card-q">Un regret</span></span>
+          <span class="card-face card-front"><span class="card-n">03</span><span class="card-q">Ma critique</span></span>
           <span class="card-face card-back">Le début est un peu lent. Après, impossible de décrocher.</span>
         </button>
         <button class="card reveal" style="--i:3" type="button" aria-pressed="false">
-          <span class="card-face card-front"><span class="card-n">04</span><span class="card-q">Le message</span></span>
+          <span class="card-face card-front"><span class="card-n">04</span><span class="card-q">Ce que j’ai ressenti</span></span>
+          <span class="card-face card-back">Peur, tristesse, stress, puis espoir.</span>
+        </button>
+        <button class="card reveal" style="--i:4" type="button" aria-pressed="false">
+          <span class="card-face card-front"><span class="card-n">05</span><span class="card-q">Le message</span></span>
           <span class="card-face card-back">On peut toujours se relever. Et le vrai monstre, c’est aussi la guerre.</span>
         </button>
       </div>
@@ -161,12 +181,12 @@
   </section>
 
   <section id="verdict" class="verdict" aria-labelledby="verdict-title">
-    <img class="verdict-bg" src="images/film/roar.jpg" alt="" loading="lazy">
+    <img class="verdict-bg wipe" src="images/film/hero.jpg" alt="" loading="lazy">
     <div class="container verdict-inner">
       <h2 id="verdict-title" class="visually-hidden">Le verdict</h2>
       <p class="score"><span id="score">4,5</span><span class="unit">/5</span></p>
       <div class="stars" id="stars" role="img" aria-label="4,5 étoiles sur 5"><span>★★★★★</span><span class="stars-fill">★★★★★</span></div>
-      <p class="verdict-line reveal">À voir au moins une fois. Sur le plus grand écran possible.</p>
+      <p class="verdict-line reveal">À voir au moins une fois. Mon conseil : en VO sous-titrée, de nuit, le son à fond.</p>
     </div>
   </section>
 
