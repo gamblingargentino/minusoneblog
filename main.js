@@ -20,18 +20,29 @@
   const playRoar = () => { if (!roar) return Promise.resolve(); try { roar.currentTime = 0; } catch (e) {} return roar.play().then(() => setSound(true)).catch(() => {}); };
   if (soundBtn) soundBtn.addEventListener('click', () => { if (soundOn) setSound(false); else playRoar(); });
 
-  /* Opening: Godzilla rises smoothly out of the dark, the roar plays, then the scene dissolves into the hero */
-  const curtain = document.getElementById('curtain');
+  /* Opening: Godzilla rises, lunges at the cursor and bites it, then the page glides down into the start */
+  const curtain = document.getElementById('curtain'), beast = document.getElementById('beast'), bait = document.getElementById('bait');
   let opened = false;
-  const ready = () => { if (opened) return; opened = true; root.classList.add('ready'); setTimeout(() => { if (curtain) curtain.remove(); }, 1600); };
-  if (still || !curtain) { if (curtain) curtain.remove(); root.classList.add('ready'); }
+  const ready = () => { if (opened) return; opened = true; root.classList.add('ready'); setTimeout(() => { if (curtain) curtain.remove(); }, 1400); };
+  if (still || !curtain || !beast) { if (curtain) curtain.remove(); root.classList.add('ready'); }
   else {
+    let px = innerWidth * 0.5, py = innerHeight * 0.42;
+    const follow = (e) => { px = e.clientX; py = e.clientY; if (bait) bait.style.transform = `translate(${px}px, ${py}px)`; };
+    curtain.addEventListener('pointermove', follow);
+    if (bait) bait.style.transform = `translate(${px}px, ${py}px)`;
     requestAnimationFrame(() => requestAnimationFrame(() => curtain.classList.add('rise')));
-    playRoar();
-    /* If autoplay was blocked, the roar plays on a tap during the opening only */
+    const timers = [];
+    /* Lunge: move the jaw (about 55% across, 16% down the cut-out) onto the cursor */
+    timers.push(setTimeout(() => {
+      const r = beast.getBoundingClientRect();
+      const jawX = r.left + r.width * 0.55, jawY = r.top + r.height * 0.16;
+      beast.style.setProperty('--lx', `${px - jawX}px`); beast.style.setProperty('--ly', `${py - jawY}px`);
+      curtain.classList.add('lunge'); playRoar();
+    }, 1500));
+    timers.push(setTimeout(() => curtain.classList.add('bitten'), 1760));
+    timers.push(setTimeout(ready, 2300));
     curtain.addEventListener('pointerdown', () => { if (!soundOn) playRoar(); }, { once: true });
-    const t = setTimeout(ready, 3400);
-    const skip = () => { clearTimeout(t); ready(); };
+    const skip = () => { timers.forEach(clearTimeout); ready(); };
     const skipBtn = document.getElementById('skip'); if (skipBtn) skipBtn.addEventListener('click', skip);
     ['wheel', 'touchmove', 'keydown'].forEach((ev) => addEventListener(ev, skip, { once: true, passive: true }));
   }
@@ -54,10 +65,6 @@
   /* Flip cards */
   document.querySelectorAll('.card').forEach((c) => c.addEventListener('click', () => c.setAttribute('aria-pressed', c.getAttribute('aria-pressed') !== 'true')));
 
-  /* Poll */
-  const poll = document.querySelector('.poll');
-  poll.addEventListener('submit', (e) => { e.preventDefault(); const pick = poll.querySelector('input[name=film]:checked'); poll.querySelector('.form-status').textContent = pick ? `Ton choix : ${pick.nextElementSibling.textContent}. Le mien : Godzilla Minus One. Rien n’est encore enregistré en ligne, ni ton choix ni ton commentaire.` : 'Choisis d’abord un film.'; });
-
   /* Count-up score */
   const score = document.getElementById('score');
   const vObs = new IntersectionObserver(([e]) => {
@@ -74,7 +81,7 @@
   const navObs = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) links.forEach((a) => a.setAttribute('aria-current', a.getAttribute('href') === '#' + e.target.id)); }), { rootMargin: '-45% 0px -50% 0px' });
   ['fiche', 'histoire', 'avis', 'verdict'].forEach((id) => navObs.observe(document.getElementById(id)));
   const clearObs = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) links.forEach((a) => a.setAttribute('aria-current', 'false')); }), { rootMargin: '-45% 0px -50% 0px' });
-  document.querySelectorAll('.hero, .statement, .breakout-sec, #suivre').forEach((el) => clearObs.observe(el));
+  document.querySelectorAll('.hero, .statement, .breakout-sec, .close-line').forEach((el) => clearObs.observe(el));
 
   /* Wipe reveals for pictures */
   const wo = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.querySelectorAll(':scope > .wipe').forEach((w) => w.classList.add('wiped')); wo.unobserve(e.target); } }), { threshold: 0.15 });

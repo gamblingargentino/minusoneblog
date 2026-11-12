@@ -56,18 +56,22 @@
 .btn:active { transform: scale(0.97); }
 .btn:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
 
-/* ---------- Opening: rise, roar, dissolve (no shake) ---------- */
+/* ---------- Opening: rise, lunge, bite, glide down ---------- */
 .curtain { display: none; }
-.js .curtain { display: grid; place-items: end center; position: fixed; inset: 0; z-index: var(--z-modal); overflow: clip; background: var(--color-paper); cursor: pointer; transition: opacity 1.3s var(--ease-spring), transform 1.6s var(--ease-spring), filter 1.3s var(--ease-spring); }
-.curtain-glow { position: absolute; left: 50%; bottom: -10%; width: min(110vw, 1300px); aspect-ratio: 1; translate: -50% 0; border-radius: 50%; background: radial-gradient(circle, var(--heat-3), transparent 62%); opacity: 0; transform: scale(0.6); transition: opacity 2.2s var(--ease-spring) 0.6s, transform 2.6s var(--ease-spring) 0.4s; }
-.curtain-beast { position: relative; z-index: 1; width: min(86vw, 900px); height: auto; margin-bottom: -1vh; opacity: 0; transform: translateY(45%) scale(0.92); filter: brightness(0.2) blur(6px); transition: transform 2.6s var(--ease-spring), opacity 1.2s var(--ease-out), filter 2.2s var(--ease-spring) 0.3s; }
-.curtain-title { position: absolute; z-index: 0; left: 50%; top: 14%; translate: -50% 0; margin: 0; white-space: nowrap; font-family: var(--font-display); font-weight: var(--display-weight); font-size: clamp(3rem, 9vw, 8rem); letter-spacing: 0.18em; color: var(--color-ink); opacity: 0; filter: blur(16px); transform: scale(1.08); transition: opacity 1.6s var(--ease-spring) 1.2s, filter 1.6s var(--ease-spring) 1.2s, transform 2.4s var(--ease-spring) 1.2s, letter-spacing 2.6s var(--ease-spring) 1.2s; }
-.curtain.rise .curtain-glow { opacity: 0.55; transform: scale(1); }
-.curtain.rise .curtain-beast { opacity: 1; transform: none; filter: brightness(1) blur(0); }
-.curtain.rise .curtain-title { opacity: 0.9; filter: blur(0); transform: none; letter-spacing: -0.01em; }
-.ready .curtain { opacity: 0; transform: scale(1.12); filter: blur(10px); pointer-events: none; }
-.js .hero-media img { filter: blur(14px) brightness(0.6); }
-.ready .hero-media img { filter: blur(0) brightness(1); transition: filter 1.8s var(--ease-spring) 0.2s; }
+.js .curtain { display: block; position: fixed; inset: 0; z-index: var(--z-modal); overflow: clip; background: var(--color-paper); cursor: none; transition: transform 1.2s cubic-bezier(0.7, 0, 0.2, 1); }
+.curtain-glow { position: absolute; left: 50%; bottom: -20%; width: min(110vw, 1300px); aspect-ratio: 1; translate: -50% 0; border-radius: 50%; background: radial-gradient(circle, var(--color-glow), transparent 62%); opacity: 0; transition: opacity 1.6s var(--ease-spring); }
+.curtain-beast { position: absolute; left: 50%; bottom: 0; width: min(80vw, 820px); height: auto; translate: -50% 0; transform: translateY(70%); filter: brightness(0.35); transition: transform 1.5s var(--ease-spring), filter 1.2s var(--ease-out); will-change: transform; }
+.curtain.rise .curtain-glow { opacity: 0.4; }
+.curtain.rise .curtain-beast { transform: translateY(8%); filter: brightness(0.9); }
+.curtain.lunge .curtain-beast { transform: translate(var(--lx, 0), var(--ly, 0)) scale(1.35); filter: brightness(1.05); transition: transform 0.26s cubic-bezier(0.5, 0, 0.75, 0), filter 0.2s linear; transform-origin: 55% 16%; }
+.bait { position: absolute; left: 0; top: 0; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: var(--color-ink); box-shadow: 0 0 0 6px color-mix(in oklab, var(--color-ink) 18%, transparent); transition: opacity 0.1s linear; pointer-events: none; }
+.curtain.bitten .bait { opacity: 0; }
+.bite-flash { position: absolute; inset: 0; background: var(--color-ink); opacity: 0; pointer-events: none; }
+.curtain.bitten .bite-flash { animation: bite 0.5s var(--ease-out) forwards; }
+@keyframes bite { 0% { opacity: 0.85; } 100% { opacity: 0; } }
+.ready .curtain { transform: translateY(-100%); pointer-events: none; }
+.js .hero-media img { filter: blur(10px) brightness(0.6); transform: scale(1.12); }
+.ready .hero-media img { filter: blur(0) brightness(1); transition: filter 1.4s var(--ease-spring) 0.3s; }
 
 /* ---------- Hero: scroll-shrink ---------- */
 .hero { height: 150vh; }
@@ -301,9 +305,39 @@
 }
 
 /* Failsafe: if the script ever fails, the opening clears itself after 5 s */
-.js .curtain { animation: curtain-failsafe 0.8s ease-out 5s forwards; }
+.js .curtain { animation: curtain-failsafe 0.8s ease-out 6s forwards; }
 @keyframes curtain-failsafe { to { opacity: 0; visibility: hidden; pointer-events: none; } }
-.js:not(.ready) .hero-media img { animation: unblur-failsafe 0.8s ease-out 5s forwards; }
+.js:not(.ready) .hero-media img { animation: unblur-failsafe 0.8s ease-out 6s forwards; }
 @keyframes unblur-failsafe { to { filter: none; } }
-.js:not(.ready) .split .ch, .js:not(.ready) .blur-in { animation: show-failsafe 0.6s ease-out 5s forwards; }
+.js:not(.ready) .split .ch, .js:not(.ready) .blur-in { animation: show-failsafe 0.6s ease-out 6s forwards; }
 @keyframes show-failsafe { to { opacity: 1; filter: none; transform: none; } }
+
+/* ---------- New look: clean, heavy, storm at sea ---------- */
+:root {
+  --font-display: "Archivo", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --display-weight: 800; --tracking-display: -0.015em;
+  --color-paper: oklch(15% 0.008 230); --color-paper-2: oklch(20% 0.01 230); --color-paper-3: oklch(26% 0.012 230);
+  --color-silhouette: oklch(10% 0.008 230); --color-shadow: oklch(12% 0.008 230);
+  --color-ink: oklch(94% 0.006 90); --color-ink-2: oklch(82% 0.008 220); --color-muted: oklch(68% 0.012 225);
+  --color-dim: oklch(38% 0.01 230);
+  --color-accent: oklch(76% 0.08 235); --color-accent-ink: oklch(15% 0.01 230); --color-focus: oklch(82% 0.09 235);
+  --color-glow: oklch(55% 0.09 235);
+  --heat-2: oklch(40% 0.05 235); --heat-3: oklch(55% 0.07 235); --heat-4: oklch(70% 0.08 235); --heat-6: oklch(94% 0.03 230);
+}
+h1, h2, h3, .words, .pull, .score, .ride-year, .card-n, .card-q, .footer-mark, .chip--award, .wordmark { font-family: var(--font-display); font-stretch: 78%; }
+.hero h1 { text-transform: uppercase; font-size: clamp(3.6rem, 10vw, 9rem); line-height: 0.88; font-weight: 900; max-width: 9ch; }
+h2 { text-transform: uppercase; letter-spacing: -0.01em; }
+.words { font-weight: 700; font-stretch: 85%; line-height: 1.02; }
+.pull { font-weight: 600; font-stretch: 90%; }
+.wordmark { font-weight: 700; font-stretch: 90%; font-size: var(--text-md); letter-spacing: 0; }
+.hero-kanji { font-family: var(--font-body); font-size: var(--text-sm); color: var(--color-ink-2); letter-spacing: 0; }
+.btn--primary { background: var(--color-ink); color: var(--color-accent-ink); }
+.btn--primary:hover { background: var(--color-ink-2); }
+.score { font-weight: 900; font-stretch: 70%; }
+.card-n { font-weight: 900; }
+.card-q { font-weight: 700; font-stretch: 90%; }
+.ride-year { font-weight: 900; font-stretch: 70%; }
+.footer-mark { font-weight: 900; text-transform: uppercase; }
+.close-line { padding-block: var(--section-gap-s); }
+.close-line p { max-width: 28ch; font-family: var(--font-display); font-weight: 700; font-stretch: 85%; font-size: clamp(1.8rem, 4vw, 3rem); line-height: 1.1; }
