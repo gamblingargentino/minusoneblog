@@ -16,15 +16,15 @@
   /* Sound toggle + roar. Browsers allow sound only after a tap, so the roar tries to autoplay, then plays on the first tap. */
   const roar = document.getElementById('roar'), soundBtn = document.getElementById('sound');
   let soundOn = false;
-  const setSound = (on) => { soundOn = on; soundBtn.setAttribute('aria-pressed', on); if (!on) roar.pause(); };
-  const playRoar = () => { roar.currentTime = 0; return roar.play().then(() => setSound(true)).catch(() => {}); };
-  soundBtn.addEventListener('click', () => { if (soundOn) setSound(false); else playRoar(); });
+  const setSound = (on) => { soundOn = on; if (soundBtn) soundBtn.setAttribute('aria-pressed', on); if (!on && roar) roar.pause(); };
+  const playRoar = () => { if (!roar) return Promise.resolve(); try { roar.currentTime = 0; } catch (e) {} return roar.play().then(() => setSound(true)).catch(() => {}); };
+  if (soundBtn) soundBtn.addEventListener('click', () => { if (soundOn) setSound(false); else playRoar(); });
 
   /* Opening: Godzilla rises smoothly out of the dark, the roar plays, then the scene dissolves into the hero */
   const curtain = document.getElementById('curtain');
   let opened = false;
-  const ready = () => { if (opened) return; opened = true; root.classList.add('ready'); setTimeout(() => curtain.remove(), 1600); };
-  if (still) { curtain.remove(); root.classList.add('ready'); }
+  const ready = () => { if (opened) return; opened = true; root.classList.add('ready'); setTimeout(() => { if (curtain) curtain.remove(); }, 1600); };
+  if (still || !curtain) { if (curtain) curtain.remove(); root.classList.add('ready'); }
   else {
     requestAnimationFrame(() => requestAnimationFrame(() => curtain.classList.add('rise')));
     playRoar();
@@ -32,7 +32,7 @@
     curtain.addEventListener('pointerdown', () => { if (!soundOn) playRoar(); }, { once: true });
     const t = setTimeout(ready, 3400);
     const skip = () => { clearTimeout(t); ready(); };
-    document.getElementById('skip').addEventListener('click', skip);
+    const skipBtn = document.getElementById('skip'); if (skipBtn) skipBtn.addEventListener('click', skip);
     ['wheel', 'touchmove', 'keydown'].forEach((ev) => addEventListener(ev, skip, { once: true, passive: true }));
   }
 
@@ -89,6 +89,7 @@
 
   /* Scroll-linked scenes */
   if (still) return;
+  if (!document.querySelector('.hero') || !document.getElementById('track') || !document.getElementById('breakout') || !document.getElementById('verdict')) return;
   const hero = document.querySelector('.hero'), stmt = document.querySelector('.statement'), ride = document.querySelector('.ride'), track = document.getElementById('track'), brk = document.getElementById('breakout'), verdict = document.getElementById('verdict');
   const prog = (el) => { const r = el.getBoundingClientRect(); return Math.min(1, Math.max(0, -r.top / (r.height - innerHeight))); };
   let queued = false;
