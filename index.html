@@ -13,7 +13,7 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="intro" id="intro" role="dialog" aria-modal="true" aria-label="Ouverture">
+<div class="intro" id="intro" hidden role="dialog" aria-modal="true" aria-label="Ouverture">
   <svg class="intro-scene" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
     <defs>
       <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--heat-0)"/><stop offset="1" stop-color="var(--heat-1)"/></linearGradient>
@@ -202,6 +202,8 @@
   (() => {
     const intro = document.getElementById('intro'), roar = document.getElementById('roar');
     if (!intro) return;
+    document.documentElement.classList.add('js');
+    intro.hidden = false;
     const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
     document.documentElement.classList.add('intro-on');
     const close = () => { intro.classList.add('is-gone'); document.documentElement.classList.remove('intro-on'); setTimeout(() => intro.remove(), 900); };

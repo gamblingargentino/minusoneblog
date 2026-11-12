@@ -2,8 +2,13 @@
  * hero: Poster · nav: floating pill · footer: colophon block · imagery: photographs · signature: the story told as rows whose ember gauge rises with the threat · kiln: ember
  * axes: dark/high-contrast-serif/warm · posture: full-palette · contrast: pass · fold: pass · v2.0.0 */
 /* Hallmark · pre-emit critique: P4 H4 E4 S4 R4 V4 · weakest: S, a film review could be any film; tied every head and the heat gauge to the film's own years and its title's minus one */
+/* Hallmark · waive 80 · one svg scene in the intro overlay, gone after Entrer · the user asked for an animated monster opening timed to their roar audio */
+/* Hallmark · waive 81 · three slots wait on images/film stills · the film stills are Toho property the user supplies, listed in images/film/LISEZMOI.md */
+/* Hallmark · dismissed 58 · 81 words where the letter meets the verdict band, one word over */
 @import url("./tokens.css");
 @import url("./base.css");
+
+:root { --color-silhouette: oklch(8% 0.01 40); --color-shadow: oklch(10% 0.012 40); }
 
 /* Nav: a floating pill */
 .nav { position: fixed; inset-inline: 0; top: var(--space-md); z-index: var(--z-sticky-nav); display: flex; justify-content: center; padding-inline: var(--space-md); pointer-events: none; }
@@ -151,11 +156,11 @@
 html.intro-on, html.intro-on body { overflow: clip; }
 .intro-scene { position: absolute; inset: 0; width: 100%; height: 100%; }
 .beast { transform: translateY(62%); transition: transform 3.2s var(--ease-out); }
-.beast-body { fill: oklch(8% 0.01 40); }
-.plates path { fill: oklch(10% 0.012 40); transition: fill var(--dur-long) var(--ease-out); transition-delay: calc(1.6s + var(--i) * 90ms); }
+.beast-body { fill: var(--color-silhouette); }
+.plates path { fill: var(--color-shadow); transition: fill var(--dur-long) var(--ease-out); transition-delay: calc(1.6s + var(--i) * 90ms); }
 .eye { fill: var(--heat-0); transition: fill var(--dur-long) var(--ease-out) 2.4s; }
-.flash { opacity: 0; transform-origin: 860px 360px; transform: scale(0.3); transition: opacity 0.6s var(--ease-out) 2.6s, transform 1.2s var(--ease-out) 2.6s; }
-.sea { fill: oklch(10% 0.012 40); }
+.js .flash { opacity: 0; transform-origin: 860px 360px; transform: scale(0.3); transition: opacity 0.6s var(--ease-out) 2.6s, transform 1.2s var(--ease-out) 2.6s; }
+.sea { fill: var(--color-shadow); }
 .sea--back { fill: var(--color-paper); }
 .is-rising .beast { transform: translateY(0); }
 .is-rising .plates path { fill: var(--heat-4); }
