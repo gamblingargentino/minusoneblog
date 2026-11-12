@@ -4,164 +4,201 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Godzilla Minus One, la critique | L’Écran de Minuit</title>
-<meta name="description" content="L'Écran de Minuit, blog cinéma : ma critique de Godzilla Minus One (Takashi Yamazaki, 2023), sans spoiler de fin.">
+<meta name="description" content="L’Écran de Minuit, blog cinéma : ma critique de Godzilla Minus One (Takashi Yamazaki, 2023), sans spoiler de fin.">
 <link rel="preconnect" href="https://api.fontshare.com">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://api.fontshare.com/v2/css?f[]=boska@500&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="images/film/cutout-roar.webp">
+<link rel="preload" as="image" href="images/film/eyes.jpg">
 <link rel="stylesheet" href="style.css">
+<script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
-<div class="intro" id="intro" hidden role="dialog" aria-modal="true" aria-label="Ouverture">
-  <div class="intro-scene" aria-hidden="true">
-    <div class="intro-glow"></div>
-    <img class="intro-beast" src="images/film/cutout-roar.webp" width="952" height="815" alt="">
-    <svg class="intro-sea" viewBox="0 0 1600 200" preserveAspectRatio="none"><path class="sea" d="M0 60 Q200 30 400 60 T800 60 T1200 60 T1600 60 V200 H0 Z"/><path class="sea sea--back" d="M0 100 Q200 80 400 100 T800 100 T1200 100 T1600 100 V200 H0 Z"/></svg>
-  </div>
-  <div class="intro-text">
-    <p class="intro-title">ゴジラ<span>-1.0</span></p>
-    <button class="btn btn--primary" type="button" id="intro-enter">Entrer</button>
-    <button class="btn btn--ghost btn--small" type="button" id="intro-skip">Passer</button>
+
+<svg class="visually-hidden" aria-hidden="true">
+  <filter id="lg" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.008 0.012" numOctaves="2" seed="7" result="n"/>
+    <feGaussianBlur in="n" stdDeviation="2" result="nb"/>
+    <feDisplacementMap in="SourceGraphic" in2="nb" scale="38" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</svg>
+
+<div class="coldopen" id="coldopen" aria-hidden="true">
+  <div class="cut cut--eyes"><img src="images/film/eyes.jpg" alt=""></div>
+  <div class="cut cut--roar">
+    <div class="cut-glow"></div>
+    <img src="images/film/cutout-roar.webp" alt="">
+    <p class="cut-title">-1.0</p>
   </div>
   <audio id="roar" src="sounds/roar.mp3" preload="auto"></audio>
 </div>
 
-
 <header class="nav">
-  <nav class="nav-pill" aria-label="Navigation principale">
+  <nav class="glass nav-pill" aria-label="Navigation principale">
     <a class="wordmark" href="#top">L’Écran de Minuit</a>
     <ul>
       <li><a href="#fiche">Le film</a></li>
       <li><a href="#histoire">L’histoire</a></li>
       <li><a href="#avis">Mon avis</a></li>
+      <li><a href="#verdict">Verdict</a></li>
     </ul>
-    <a class="btn btn--ghost btn--small" href="#verdict">Le verdict</a>
+    <button class="sound" type="button" id="sound" aria-pressed="false" aria-label="Activer le son">
+      <span class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+    </button>
   </nav>
 </header>
 
 <main id="top">
 
   <section class="hero" aria-labelledby="hero-title">
-    <figure class="hero-photo" data-slot="hero" data-alt="Godzilla surgit de la mer">
-      <img src="images/film/hero.jpg" width="2000" height="1398" alt="Godzilla surgit d’une vague au-dessus d’un avion, dans Godzilla Minus One" fetchpriority="high">
-    </figure>
-    <div class="container hero-inner">
-      <h1 id="hero-title">Godzilla Minus One</h1>
-      <p class="lead">Un film de monstre qui parle du cœur humain.</p>
-      <div class="actions">
-        <a class="btn btn--primary" href="#avis">Lire ma critique</a>
-        <a class="btn btn--ghost" href="#histoire">L’histoire sans spoiler</a>
+    <div class="hero-sticky">
+      <figure class="hero-media"><img src="images/film/hero.jpg" width="2000" height="1398" alt="Godzilla surgit d’une vague au-dessus d’un avion, dans Godzilla Minus One" fetchpriority="high"></figure>
+      <div class="hero-copy">
+        <p class="hero-kanji blur-in" aria-hidden="true">ゴジラ-1.0</p>
+        <h1 id="hero-title" class="split">Godzilla Minus One</h1>
+        <p class="lead blur-in" style="--d: 0.5s">Un film de monstre qui parle du cœur humain.</p>
+        <div class="actions blur-in" style="--d: 0.65s">
+          <a class="btn btn--primary" href="#avis">Lire ma critique</a>
+          <a class="btn glass btn--glass" href="#histoire">L’histoire sans spoiler</a>
+        </div>
       </div>
+      <p class="scroll-hint blur-in" style="--d: 0.9s" aria-hidden="true"><span></span>Scrolle</p>
     </div>
   </section>
 
-  <section id="fiche" class="section">
-    <div class="container fiche">
-      <div class="fiche-head">
-        <h2>Le film en six lignes</h2>
-        <p class="lead">Un kaijū japonais, tourné pour les 70 ans de Godzilla.</p>
-      </div>
-      <dl class="index">
-        <div><dt>Réalisateur</dt><dd>Takashi Yamazaki, coscénariste avec Yūichi Shiba</dd></div>
-        <div><dt>Avec</dt><dd>Ryunosuke Kamiki, Minami Hamabe, Yuki Yamada, Sakura Ando</dd></div>
-        <div><dt>Genre</dt><dd>Science-fiction, film de monstres, drame historique</dd></div>
-        <div><dt>Sortie</dt><dd><time datetime="2023-11-03">3 novembre 2023</time> au Japon</dd></div>
-        <div><dt>Où et quand</dt><dd>Le Japon, de 1945 à 1947</dd></div>
-        <div class="index-lead"><dt>Récompense</dt><dd>Oscar 2024 des meilleurs effets visuels, une première pour un film japonais</dd></div>
-      </dl>
+  <section id="fiche" class="fiche">
+    <img class="fiche-bg" src="images/film/face.jpg" alt="" loading="lazy">
+    <div class="container fiche-inner">
+      <h2 class="reveal">Le film, en vrai</h2>
+      <ul class="chips">
+        <li class="glass chip reveal" style="--i:0"><small>Réalisateur</small>Takashi Yamazaki</li>
+        <li class="glass chip reveal" style="--i:1"><small>Avec</small>Ryunosuke Kamiki, Minami Hamabe</li>
+        <li class="glass chip reveal" style="--i:2"><small>Genre</small>Kaijū, drame historique</li>
+        <li class="glass chip reveal" style="--i:3"><small>Sortie</small><time datetime="2023-11-03">3 nov. 2023</time>, Japon</li>
+        <li class="glass chip reveal" style="--i:4"><small>Époque</small>Japon, 1945 à 1947</li>
+        <li class="glass chip chip--award reveal" style="--i:5"><small>Oscar 2024</small>Meilleurs effets visuels, une première pour un film japonais</li>
+      </ul>
     </div>
   </section>
 
-  <section class="statement section-tight" aria-label="Le sens du titre">
+  <section class="statement" aria-label="Le sens du titre">
+    <div class="statement-sticky container">
+      <p class="words" id="words">Après la guerre, le Japon est à zéro. Puis Godzilla arrive, et le fait tomber à moins un.</p>
+    </div>
+  </section>
+
+  <section class="breakout-sec" aria-label="Godzilla dans Ginza">
     <div class="container">
-      <p class="statement-text">Après la guerre, le Japon est à zéro. Godzilla le fait tomber à moins un.</p>
-    </div>
-  </section>
-
-  <section class="showcase" aria-label="Godzilla dans Ginza">
-    <div class="container">
-      <figure class="breakout">
+      <figure class="breakout" id="breakout">
         <div class="breakout-frame"><img src="images/film/city.jpg" width="1525" height="858" alt="Godzilla rugit au milieu des immeubles de Ginza, dans Godzilla Minus One" loading="lazy"></div>
-        <img class="breakout-cut" src="images/film/cutout-city.webp" width="1525" height="858" alt="" loading="lazy">
+        <div class="breakout-top"><img class="breakout-cut" src="images/film/cutout-city.webp" width="1525" height="858" alt="" loading="lazy"></div>
       </figure>
-      <p class="caption">Ginza, 1947. Le monstre sort littéralement du cadre.</p>
+      <p class="caption">Ginza, 1947. Il sort du cadre.</p>
     </div>
   </section>
 
-  <section id="histoire" class="section">
-    <div class="container story">
-      <div class="story-head">
-        <h2>L’histoire, sans la fin</h2>
-        <p class="note">Spoilers légers. La fin reste secrète.</p>
+  <section id="histoire" class="ride" aria-labelledby="ride-title">
+    <div class="ride-sticky">
+      <div class="ride-head container">
+        <h2 id="ride-title">L’histoire, sans la fin</h2>
+        <p class="glass tag">Spoilers légers</p>
       </div>
-      <ol class="rows">
-        <li>
-          <span class="row-when"><time datetime="1945">1945</time></span>
-          <div class="row-body">
+      <ol class="ride-track" id="track">
+        <li class="ride-card">
+          <img src="images/film/eyes.jpg" alt="" loading="lazy">
+          <div class="ride-text">
+            <span class="ride-year">1945</span>
             <h3>L’île d’Odo</h3>
-            <p>Kōichi, pilote kamikaze qui a fui sa mission, se pose sur une île. Une créature surgit de la nuit.</p>
+            <p>Kōichi, pilote kamikaze qui a fui sa mission, se pose sur une île. Quelque chose sort de la nuit.</p>
+            <span class="heat" style="--level: 2" aria-label="Menace : faible"></span>
           </div>
-          <span class="heat" style="--level: 2" aria-label="Menace : faible"></span>
         </li>
-        <li>
-          <span class="row-when"><time datetime="1947">1947</time></span>
-          <div class="row-body">
+        <li class="ride-card">
+          <img src="images/film/face.jpg" alt="" loading="lazy">
+          <div class="ride-text">
+            <span class="ride-year">1947</span>
             <h3>Tokyo en ruines</h3>
             <p>Rongé par la honte, il forme une famille de hasard avec Noriko et un bébé orphelin.</p>
+            <span class="heat" style="--level: 3" aria-label="Menace : moyenne"></span>
           </div>
-          <span class="heat" style="--level: 3" aria-label="Menace : moyenne"></span>
         </li>
-        <li>
-          <span class="row-when"><time datetime="1947">1947</time></span>
-          <div class="row-body">
+        <li class="ride-card">
+          <img src="images/film/roar.jpg" alt="" loading="lazy">
+          <div class="ride-text">
+            <span class="ride-year">1947</span>
             <h3>La menace</h3>
-            <p>Devenu immense, Godzilla fonce sur Tokyo. Sans armée, d’anciens soldats cherchent un plan désespéré.</p>
+            <p>Devenu immense, Godzilla fonce sur Tokyo. Pas d’armée. Juste d’anciens soldats et un plan désespéré.</p>
+            <span class="heat" style="--level: 6" aria-label="Menace : maximale"></span>
           </div>
-          <span class="heat" style="--level: 5" aria-label="Menace : maximale"></span>
+        </li>
+        <li class="ride-card ride-card--q">
+          <div class="ride-text">
+            <span class="ride-year">?</span>
+            <h3>Des hommes brisés peuvent-ils se relever une dernière fois ?</h3>
+            <p>La fin, tu la découvres toi-même.</p>
+          </div>
         </li>
       </ol>
-      <p class="story-question">Des hommes brisés par la guerre peuvent-ils se relever une dernière fois ?</p>
     </div>
   </section>
 
-  <section id="avis" class="section letter-section">
-    <div class="container letter-grid">
-      <article class="letter">
-        <h2 class="salutation">Cher lecteur,</h2>
-        <p>J’ai aimé l’équilibre. Godzilla fait vraiment peur, mais ce sont les humains qui m’ont touché.</p>
-        <p>Mon personnage préféré, c’est Kōichi : un héros minuscule face à un monstre géant, dont le vrai combat est intérieur.</p>
-        <p>Un regret : le début est un peu lent. Mais je retiens le message. On peut toujours se relever, et le vrai monstre, c’est aussi la guerre.</p>
-        <p class="signoff">À minuit, L’Écran</p>
-      </article>
-      <figure class="photo photo--eyes" data-slot="eyes" data-alt="Le regard de Godzilla">
-        <img src="images/film/eyes.jpg" width="1173" height="622" alt="Gros plan sur les yeux de Godzilla">
-      </figure>
+  <section id="avis" class="avis section">
+    <div class="container">
+      <div class="avis-head">
+        <h2 class="reveal">Mon avis, en quatre cartes</h2>
+        <p class="lead reveal" style="--i:1">Touche une carte pour la retourner.</p>
+      </div>
+      <div class="deck">
+        <button class="card reveal" style="--i:0" type="button" aria-pressed="false">
+          <span class="card-face card-front"><span class="card-n">01</span><span class="card-q">Ce que j’ai aimé</span></span>
+          <span class="card-face card-back">Godzilla fait vraiment peur, mais ce sont les humains qui m’ont touché.</span>
+        </button>
+        <button class="card reveal" style="--i:1" type="button" aria-pressed="false">
+          <span class="card-face card-front"><span class="card-n">02</span><span class="card-q">Mon perso préféré</span></span>
+          <span class="card-face card-back">Kōichi. Un héros minuscule face à un monstre géant, dont le vrai combat est intérieur.</span>
+        </button>
+        <button class="card reveal" style="--i:2" type="button" aria-pressed="false">
+          <span class="card-face card-front"><span class="card-n">03</span><span class="card-q">Un regret</span></span>
+          <span class="card-face card-back">Le début est un peu lent. Après, impossible de décrocher.</span>
+        </button>
+        <button class="card reveal" style="--i:3" type="button" aria-pressed="false">
+          <span class="card-face card-front"><span class="card-n">04</span><span class="card-q">Le message</span></span>
+          <span class="card-face card-back">On peut toujours se relever. Et le vrai monstre, c’est aussi la guerre.</span>
+        </button>
+      </div>
     </div>
   </section>
 
-  <section id="verdict" class="band" aria-labelledby="verdict-title">
-    <div class="container verdict">
-      <div>
-        <h2 id="verdict-title" class="visually-hidden">Le verdict</h2>
-        <p class="figure verdict-score">4,5<span class="unit">/5</span></p>
-      </div>
-      <div class="verdict-side">
-        <p class="lead">À voir au moins une fois, de préférence sur grand écran.</p>
-        <a class="btn btn--ghost" href="#suivre">Suivre le blog</a>
-      </div>
+  <section id="verdict" class="verdict" aria-labelledby="verdict-title">
+    <img class="verdict-bg" src="images/film/roar.jpg" alt="" loading="lazy">
+    <div class="container verdict-inner">
+      <h2 id="verdict-title" class="visually-hidden">Le verdict</h2>
+      <p class="score"><span id="score">4,5</span><span class="unit">/5</span></p>
+      <div class="stars" id="stars" role="img" aria-label="4,5 étoiles sur 5"><span>★★★★★</span><span class="stars-fill">★★★★★</span></div>
+      <p class="verdict-line reveal">À voir au moins une fois. Sur le plus grand écran possible.</p>
     </div>
   </section>
 
   <section id="suivre" class="section close">
     <div class="container close-grid">
-      <div>
-        <h2>Et vous, quel monstre ?</h2>
-        <p class="lead">Quel film de monstre vous a le plus marqué ?</p>
+      <div class="close-head">
+        <h2 class="reveal">À toi de jouer</h2>
+        <p class="lead reveal" style="--i:1">Ton film de monstre préféré ?</p>
       </div>
-      <form class="comment" data-endpoint="" novalidate>
-        <label for="reply">Votre réponse</label>
-        <textarea id="reply" name="reply" rows="3" placeholder="Pour moi, c’est…"></textarea>
+      <form class="poll" data-endpoint="" novalidate>
+        <fieldset class="poll-options">
+          <legend class="visually-hidden">Ton film de monstre préféré</legend>
+          <input type="radio" name="film" id="f1" value="minus-one"><label class="glass" for="f1">Godzilla Minus One</label>
+          <input type="radio" name="film" id="f2" value="1954"><label class="glass" for="f2">Godzilla (1954)</label>
+          <input type="radio" name="film" id="f3" value="shin"><label class="glass" for="f3">Shin Godzilla</label>
+          <input type="radio" name="film" id="f4" value="kong"><label class="glass" for="f4">King Kong</label>
+          <input type="radio" name="film" id="f5" value="jurassic"><label class="glass" for="f5">Jurassic Park</label>
+          <input type="radio" name="film" id="f6" value="pacific"><label class="glass" for="f6">Pacific Rim</label>
+        </fieldset>
+        <label class="visually-hidden" for="reply">Ton commentaire</label>
+        <textarea id="reply" name="reply" rows="3" placeholder="Dis-moi pourquoi…"></textarea>
         <div class="comment-actions">
           <button class="btn btn--primary" type="submit">Envoyer</button>
           <p class="form-status" role="status" aria-live="polite"></p>
@@ -173,38 +210,12 @@
 
 <footer class="footer">
   <div class="container footer-inner">
-    <p class="wordmark">L’Écran de Minuit</p>
+    <p class="footer-mark">L’Écran de Minuit</p>
     <p class="footer-line">Des films qui marquent, des avis qui parlent.</p>
-    <p class="credits">Images du film <cite>Godzilla Minus One</cite> © Toho Co., Ltd., utilisées à titre de critique. Animation d’ouverture originale. Blog réalisé pour un projet scolaire.</p>
+    <p class="credits">Images du film <cite>Godzilla Minus One</cite> © Toho Co., Ltd., utilisées à titre de critique. Blog réalisé pour un projet scolaire.</p>
   </div>
 </footer>
 
-<script>
-  (() => {
-    const intro = document.getElementById('intro'), roar = document.getElementById('roar');
-    if (!intro) return;
-    document.documentElement.classList.add('js');
-    intro.hidden = false;
-    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    document.documentElement.classList.add('intro-on');
-    const close = () => { intro.classList.add('is-gone'); document.documentElement.classList.remove('intro-on'); setTimeout(() => intro.remove(), 900); };
-    document.getElementById('intro-enter').addEventListener('click', () => {
-      intro.classList.add('is-rising');
-      roar.play().catch(() => {});
-      setTimeout(close, still ? 300 : 4200);
-    });
-    document.getElementById('intro-skip').addEventListener('click', () => { roar.pause(); close(); });
-    addEventListener('keydown', (e) => { if (e.key === 'Escape' && document.body.contains(intro)) close(); });
-    document.getElementById('intro-enter').focus();
-  })();
-  window.hallmarkSlots = (m) => { for (const [k, v] of Object.entries(m)) { const s = document.querySelector(`[data-slot="${k}"]`); if (!s) continue; const im = new Image(); im.src = typeof v === 'string' ? v : v.src; im.alt = (typeof v === 'object' && v.alt) || s.dataset.alt || ''; s.querySelectorAll(':scope > img').forEach((o) => o.remove()); s.prepend(im); } };
-  document.querySelectorAll('[data-slot] img').forEach((i) => { if (i.complete && !i.naturalWidth) i.remove(); else i.addEventListener('error', () => i.remove(), { once: true }); });
-</script>
-<script>
-  document.querySelector('.comment').addEventListener('submit', (e) => {
-    e.preventDefault();
-    e.target.querySelector('.form-status').textContent = "Les commentaires ne sont pas encore branchés : rien n’a été envoyé.";
-  });
-</script>
+<script src="main.js"></script>
 </body>
 </html>
