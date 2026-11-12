@@ -1,14 +1,6 @@
 (() => {
   const root = document.documentElement;
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const roar = document.getElementById('roar');
-  const soundBtn = document.getElementById('sound');
-
-  /* Sound: browsers only allow audio after a tap or key, so the roar plays on autoplay if allowed, else on the first tap. */
-  let soundOn = false;
-  const setSound = (on) => { soundOn = on; soundBtn.setAttribute('aria-pressed', on); soundBtn.setAttribute('aria-label', on ? 'Couper le son' : 'Activer le son'); if (!on) roar.pause(); };
-  soundBtn.addEventListener('click', () => { setSound(!soundOn); if (soundOn) { roar.currentTime = 0; roar.play().catch(() => {}); } });
-  const tryRoar = () => roar.play().then(() => setSound(true)).catch(() => {});
 
   /* Split the title into letters */
   document.querySelectorAll('.split').forEach((el) => {
@@ -21,19 +13,8 @@
     });
   });
 
-  /* Cold open: black, smash cut to the eyes, smash cut to the roar, cut to the site */
-  const open = document.getElementById('coldopen');
-  const ready = () => { open.classList.add('done'); root.classList.add('ready'); };
-  if (still || !open) { ready(); } else {
-    root.style.overflow = 'clip';
-    const timers = [];
-    const shot = (n, t) => timers.push(setTimeout(() => { open.dataset.shot = n; if (n === 2) tryRoar(); }, t));
-    shot(1, 350); shot(2, 1250);
-    const end = () => { timers.forEach(clearTimeout); root.style.overflow = ''; ready(); };
-    timers.push(setTimeout(end, 2700));
-    open.addEventListener('click', () => { tryRoar(); end(); });
-    addEventListener('keydown', (e) => { if (e.key === 'Escape') end(); }, { once: true });
-  }
+  /* Smooth open: the curtain lifts and the hero settles */
+  requestAnimationFrame(() => requestAnimationFrame(() => root.classList.add('ready')));
 
   /* Statement words */
   const words = document.getElementById('words');
@@ -82,12 +63,15 @@
     if (matchMedia('(min-width: 52rem)').matches) {
       const max = track.scrollWidth - innerWidth; const rp = prog(ride);
       track.style.setProperty('--r', (rp * max).toFixed(1));
+      ride.style.setProperty('--rp', rp.toFixed(3));
       track.querySelectorAll('.ride-card').forEach((c) => { const cr = c.getBoundingClientRect(); c.style.setProperty('--k', ((cr.left + cr.width / 2 - innerWidth / 2) / innerWidth).toFixed(3)); });
     }
     const vr = verdict.getBoundingClientRect(); verdict.style.setProperty('--v', Math.min(1, Math.max(0, 1 - vr.top / innerHeight)).toFixed(3));
   };
   addEventListener('scroll', () => { if (!queued) { queued = true; requestAnimationFrame(frame); } }, { passive: true });
-  addEventListener('resize', frame);
+  const sizeRide = () => { if (matchMedia('(min-width: 52rem)').matches) ride.style.height = (track.scrollWidth - innerWidth + innerHeight * 1.15) + 'px'; else ride.style.height = ''; };
+  sizeRide();
+  addEventListener('resize', () => { sizeRide(); frame(); });
   frame();
 
   /* Nav: mark the section in view */

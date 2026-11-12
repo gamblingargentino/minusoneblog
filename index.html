@@ -10,8 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://api.fontshare.com/v2/css?f[]=boska@500&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500&display=swap" rel="stylesheet">
-<link rel="preload" as="image" href="images/film/cutout-roar.webp">
-<link rel="preload" as="image" href="images/film/eyes.jpg">
+<link rel="preload" as="image" href="images/film/hero.jpg">
 <link rel="stylesheet" href="style.css">
 <script>document.documentElement.classList.add('js');</script>
 </head>
@@ -25,15 +24,7 @@
   </filter>
 </svg>
 
-<div class="coldopen" id="coldopen" aria-hidden="true">
-  <div class="cut cut--eyes"><img src="images/film/eyes.jpg" alt=""></div>
-  <div class="cut cut--roar">
-    <div class="cut-glow"></div>
-    <img src="images/film/cutout-roar.webp" alt="">
-    <p class="cut-title">-1.0</p>
-  </div>
-  <audio id="roar" src="sounds/roar.mp3" preload="auto"></audio>
-</div>
+<div class="curtain" aria-hidden="true"></div>
 
 <header class="nav">
   <nav class="glass nav-pill" aria-label="Navigation principale">
@@ -44,9 +35,6 @@
       <li><a href="#avis">Mon avis</a></li>
       <li><a href="#verdict">Verdict</a></li>
     </ul>
-    <button class="sound" type="button" id="sound" aria-pressed="false" aria-label="Activer le son">
-      <span class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-    </button>
   </nav>
 </header>
 
@@ -69,7 +57,7 @@
   </section>
 
   <section id="fiche" class="fiche">
-    <img class="fiche-bg" src="images/film/face.jpg" alt="" loading="lazy">
+    <img class="fiche-bg" src="images/film/roar.jpg" alt="" loading="lazy">
     <div class="container fiche-inner">
       <h2 class="reveal">Le film, en vrai</h2>
       <ul class="chips">
@@ -105,6 +93,7 @@
         <h2 id="ride-title">L’histoire, sans la fin</h2>
         <p class="glass tag">Spoilers légers</p>
       </div>
+      <div class="ride-progress container" aria-hidden="true"><span class="ride-bar"><i></i></span><span class="ride-hint">Continue de scroller, ça défile sur le côté</span></div>
       <ol class="ride-track" id="track">
         <li class="ride-card">
           <img src="images/film/eyes.jpg" alt="" loading="lazy">
@@ -116,7 +105,7 @@
           </div>
         </li>
         <li class="ride-card">
-          <img src="images/film/face.jpg" alt="" loading="lazy">
+          <img src="images/film/city.jpg" alt="" loading="lazy">
           <div class="ride-text">
             <span class="ride-year">1947</span>
             <h3>Tokyo en ruines</h3>
