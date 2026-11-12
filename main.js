@@ -20,31 +20,19 @@
   const playRoar = () => { if (!roar) return Promise.resolve(); try { roar.currentTime = 0; } catch (e) {} return roar.play().then(() => setSound(true)).catch(() => {}); };
   if (soundBtn) soundBtn.addEventListener('click', () => { if (soundOn) setSound(false); else playRoar(); });
 
-  /* Opening: Godzilla rises, lunges at the cursor and bites it, then the page glides down into the start */
-  const curtain = document.getElementById('curtain'), beast = document.getElementById('beast'), bait = document.getElementById('bait');
+  /* Opening is run by intro.js (3D model). This exposes what it needs. */
+  const curtain = document.getElementById('curtain');
   let opened = false;
-  const ready = () => { if (opened) return; opened = true; root.classList.add('ready'); setTimeout(() => { if (curtain) curtain.remove(); }, 1400); };
-  if (still || !curtain || !beast) { if (curtain) curtain.remove(); root.classList.add('ready'); }
+  const ready = () => { if (opened) return; opened = true; root.classList.add('ready'); setTimeout(() => { if (curtain) curtain.remove(); }, 1500); };
+  window.siteReady = ready;
+  window.playRoar = playRoar;
+  window.isSoundOn = () => soundOn;
+  if (still || !curtain) { if (curtain) curtain.remove(); root.classList.add('ready'); opened = true; }
   else {
-    let px = innerWidth * 0.5, py = innerHeight * 0.42;
-    const follow = (e) => { px = e.clientX; py = e.clientY; if (bait) bait.style.transform = `translate(${px}px, ${py}px)`; };
-    curtain.addEventListener('pointermove', follow);
-    if (bait) bait.style.transform = `translate(${px}px, ${py}px)`;
-    requestAnimationFrame(() => requestAnimationFrame(() => curtain.classList.add('rise')));
-    const timers = [];
-    /* Lunge: move the jaw (about 55% across, 16% down the cut-out) onto the cursor */
-    timers.push(setTimeout(() => {
-      const r = beast.getBoundingClientRect();
-      const jawX = r.left + r.width * 0.55, jawY = r.top + r.height * 0.16;
-      beast.style.setProperty('--lx', `${px - jawX}px`); beast.style.setProperty('--ly', `${py - jawY}px`);
-      curtain.classList.add('lunge'); playRoar();
-    }, 1500));
-    timers.push(setTimeout(() => curtain.classList.add('bitten'), 1760));
-    timers.push(setTimeout(ready, 2300));
-    curtain.addEventListener('pointerdown', () => { if (!soundOn) playRoar(); }, { once: true });
-    const skip = () => { timers.forEach(clearTimeout); ready(); };
+    const skip = () => { window.introSkipped = true; ready(); };
     const skipBtn = document.getElementById('skip'); if (skipBtn) skipBtn.addEventListener('click', skip);
     ['wheel', 'touchmove', 'keydown'].forEach((ev) => addEventListener(ev, skip, { once: true, passive: true }));
+    curtain.addEventListener('pointerdown', () => { if (!soundOn) playRoar(); }, { once: true });
   }
 
 

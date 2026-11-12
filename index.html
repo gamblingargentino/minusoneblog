@@ -8,10 +8,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="preload" as="image" href="images/film/cutout-roar.webp">
 <link rel="preload" as="image" href="images/film/hero.jpg">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%23060a10%22/%3E%3Ctext x=%2216%22 y=%2222%22 font-size=%2216%22 text-anchor=%22middle%22 fill=%22%2340e0ff%22 font-family=%22Georgia%22%3E-1%3C/text%3E%3C/svg%3E">
-<link rel="stylesheet" href="style.css?v=1794505713">
+<link rel="stylesheet" href="style.css?v=1794506357">
 <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
@@ -25,16 +24,15 @@
 </svg>
 
 <div class="curtain" id="curtain" aria-hidden="true">
-  <div class="curtain-glow"></div>
-  <img class="curtain-beast" id="beast" src="images/film/cutout-roar.webp" width="952" height="815" alt="">
-  <div class="bait" id="bait"></div>
+  <canvas class="stage" id="stage"></canvas>
+  <p class="stage-load" id="stage-load">Chargement…</p>
   <div class="bite-flash"></div>
   <audio id="roar" src="sounds/roar.mp3" preload="auto"></audio>
-  <button class="curtain-skip glass" type="button" id="skip">Passer</button>
+  <button class="curtain-skip" type="button" id="skip">Passer</button>
 </div>
 
 <header class="nav">
-  <nav class="glass nav-pill" aria-label="Navigation principale">
+  <nav class="nav-pill" aria-label="Navigation principale">
     <a class="wordmark" href="#top">L’Écran de Minuit</a>
     <ul>
       <li><a href="#fiche">Le film</a></li>
@@ -57,7 +55,7 @@
         <p class="lead blur-in" style="--d: 0.5s">Un film de monstre qui parle du cœur humain.</p>
         <div class="actions blur-in" style="--d: 0.65s">
           <a class="btn btn--primary" href="#avis">Lire ma critique</a>
-          <a class="btn glass btn--glass" href="#histoire">L’histoire sans spoiler</a>
+          <a class="btn btn--ghost" href="#histoire">L’histoire sans spoiler</a>
         </div>
       </div>
       <p class="scroll-hint blur-in" style="--d: 0.9s" aria-hidden="true"><span></span>Scrolle</p>
@@ -69,13 +67,13 @@
     <div class="container fiche-inner">
       <h2 class="reveal">Le film, en vrai</h2>
       <ul class="chips">
-        <li class="glass chip reveal" style="--i:0"><small>Réalisateur</small><span>Takashi Yamazaki</span></li>
-        <li class="glass chip reveal" style="--i:1"><small>Avec</small><span>Ryunosuke Kamiki, Minami Hamabe</span></li>
-        <li class="glass chip reveal" style="--i:2"><small>Genre</small><span>Kaijū, drame historique</span></li>
-        <li class="glass chip reveal" style="--i:3"><small>Sortie</small><span><time datetime="2023-11-03">3 nov. 2023</time>, Japon</span></li>
-        <li class="glass chip reveal" style="--i:4"><small>Époque</small><span>Japon, 1945 à 1947</span></li>
-        <li class="glass chip reveal" style="--i:5"><small>Durée</small><span>2 h 05, produit par Toho</span></li>
-        <li class="glass chip chip--award reveal" style="--i:6"><small>Oscar 2024</small>Meilleurs effets visuels, une première pour un film japonais</li>
+        <li class="chip reveal" style="--i:0"><small>Réalisateur</small><span>Takashi Yamazaki</span></li>
+        <li class="chip reveal" style="--i:1"><small>Avec</small><span>Ryunosuke Kamiki, Minami Hamabe</span></li>
+        <li class="chip reveal" style="--i:2"><small>Genre</small><span>Kaijū, drame historique</span></li>
+        <li class="chip reveal" style="--i:3"><small>Sortie</small><span><time datetime="2023-11-03">3 nov. 2023</time>, Japon</span></li>
+        <li class="chip reveal" style="--i:4"><small>Époque</small><span>Japon, 1945 à 1947</span></li>
+        <li class="chip reveal" style="--i:5"><small>Durée</small><span>2 h 05, produit par Toho</span></li>
+        <li class="chip chip--award reveal" style="--i:6"><small>Oscar 2024</small>Meilleurs effets visuels, une première pour un film japonais</li>
       </ul>
     </div>
   </section>
@@ -89,10 +87,10 @@
   <section class="breakout-sec" aria-label="Godzilla dans Ginza">
     <div class="container">
       <figure class="breakout" id="breakout">
-        <div class="breakout-frame wipe"><img src="images/film/city.jpg" width="1525" height="858" alt="Godzilla rugit au milieu des immeubles de Ginza, dans Godzilla Minus One" loading="lazy"></div>
-        <div class="breakout-top"><img class="breakout-cut" src="images/film/cutout-city.webp" width="1525" height="858" alt="" loading="lazy"></div>
+        <img class="breakout-photo" src="images/film/city.jpg" width="1525" height="858" alt="Godzilla rugit au milieu des immeubles de Ginza, dans Godzilla Minus One" loading="lazy">
+        <img class="breakout-cut" src="images/film/cutout-city.webp" width="1525" height="858" alt="" loading="lazy">
       </figure>
-      <p class="caption">Ginza, 1947. Il sort du cadre.</p>
+      <p class="caption">Ginza, 1947. Le décor monte, lui reste. Il sort du cadre.</p>
     </div>
   </section>
 
@@ -100,7 +98,7 @@
     <div class="ride-sticky">
       <div class="ride-head container">
         <h2 id="ride-title">L’histoire, sans la fin</h2>
-        <p class="glass tag">Sans la fin</p>
+        <p class="tag">Sans la fin</p>
       </div>
       <div class="ride-progress container" aria-hidden="true"><span class="ride-bar"><i></i></span><span class="ride-hint">Continue de scroller, ça défile sur le côté</span></div>
       <p class="ride-swipe container" aria-hidden="true">Glisse les cartes sur le côté</p>
@@ -203,10 +201,12 @@
   <div class="container footer-inner">
     <p class="footer-mark">L’Écran de Minuit</p>
     <p class="footer-line">Des films qui marquent, des avis qui parlent.</p>
-    <p class="credits">Images du film <cite>Godzilla Minus One</cite> © Toho Co., Ltd., utilisées à titre de critique. Blog réalisé pour un projet scolaire.</p>
+    <p class="credits">Images du film <cite>Godzilla Minus One</cite> © Toho Co., Ltd., utilisées à titre de critique. Modèle 3D « Godzilla » par ArachnoBoy (Sketchfab), licence CC BY-NC 4.0. Blog réalisé pour un projet scolaire.</p>
   </div>
 </footer>
 
-<script src="main.js?v=1794505713"></script>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script src="main.js?v=1794506357"></script>
+<script type="module" src="intro.js?v=1794506357"></script>
 </body>
 </html>
