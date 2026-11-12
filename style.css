@@ -58,16 +58,16 @@
 
 /* ---------- Opening: 3D model on a dark sea, then the scene lifts away ---------- */
 .curtain { display: none; }
-.js .curtain { display: block; position: fixed; inset: 0; z-index: var(--z-modal); overflow: clip; background: var(--color-paper); transition: transform 1.3s cubic-bezier(0.7, 0, 0.2, 1); }
+.js .curtain { display: block; position: fixed; inset: 0; z-index: var(--z-modal); overflow: clip; background: var(--color-paper); transition: opacity 1.2s var(--ease-in-out); }
 .stage { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity 1s var(--ease-out); }
 .curtain.live .stage { opacity: 1; }
 .stage-load { position: absolute; left: 50%; top: 50%; translate: -50% -50%; margin: 0; font-size: var(--text-sm); color: var(--color-muted); }
 .bite-flash { position: absolute; inset: 0; background: var(--color-ink); opacity: 0; pointer-events: none; }
 .bite-flash.on { animation: bite 0.6s var(--ease-out) forwards; }
 @keyframes bite { 0% { opacity: 0.7; } 100% { opacity: 0; } }
-.ready .curtain { transform: translateY(-100%); pointer-events: none; }
-.js .hero-media img { filter: blur(10px) brightness(0.6); transform: scale(1.12); }
-.ready .hero-media img { filter: blur(0) brightness(1); transition: filter 1.4s var(--ease-spring) 0.3s; }
+.ready .curtain { opacity: 0; pointer-events: none; }
+.js .hero-media img { filter: brightness(0.85); }
+.ready .hero-media img { filter: brightness(1); transition: filter 1.6s var(--ease-out) 0.4s; }
 
 /* ---------- Hero: scroll-shrink ---------- */
 .hero { height: 150vh; }

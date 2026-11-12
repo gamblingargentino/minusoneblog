@@ -32,7 +32,6 @@
     const skip = () => { window.introSkipped = true; ready(); };
     const skipBtn = document.getElementById('skip'); if (skipBtn) skipBtn.addEventListener('click', skip);
     ['wheel', 'touchmove', 'keydown'].forEach((ev) => addEventListener(ev, skip, { once: true, passive: true }));
-    curtain.addEventListener('pointerdown', () => { if (!soundOn) playRoar(); }, { once: true });
   }
 
 
