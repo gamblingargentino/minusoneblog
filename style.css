@@ -2,13 +2,18 @@
  * hero: Poster · nav: floating pill · footer: colophon block · imagery: photographs · signature: the story told as rows whose ember gauge rises with the threat · kiln: ember
  * axes: dark/high-contrast-serif/warm · posture: full-palette · contrast: pass · fold: pass · v2.0.0 */
 /* Hallmark · pre-emit critique: P4 H4 E4 S4 R4 V4 · weakest: S, a film review could be any film; tied every head and the heat gauge to the film's own years and its title's minus one */
-/* Hallmark · waive 80 · one svg scene in the intro overlay, gone after Entrer · the monstre rises from la mer before the critique opens, timed to the roar */
-/* Hallmark · waive 81 · three slots wait on images/film stills · the film stills are Toho property the user supplies, listed in images/film/LISEZMOI.md */
 /* Hallmark · dismissed 58 · 81 words where the letter meets the verdict band, one word over */
 @import url("./tokens.css");
 @import url("./base.css");
 
-:root { --color-silhouette: oklch(8% 0.01 40); --color-shadow: oklch(10% 0.012 40); }
+:root {
+  --color-silhouette: oklch(8% 0.012 240); --color-shadow: oklch(10% 0.014 240);
+  --color-paper: oklch(13% 0.012 240); --color-paper-2: oklch(17.5% 0.016 240); --color-paper-3: oklch(22% 0.018 240);
+  --color-ink: oklch(95% 0.012 220); --color-ink-2: oklch(85% 0.018 220); --color-muted: oklch(72% 0.025 225);
+  --color-accent: oklch(82% 0.13 210); --color-accent-ink: oklch(15% 0.02 240); --color-focus: oklch(86% 0.14 205);
+  --heat-0: oklch(12% 0.014 240); --heat-1: oklch(22% 0.05 245); --heat-2: oklch(38% 0.1 240); --heat-3: oklch(56% 0.14 230);
+  --heat-4: oklch(74% 0.14 215); --heat-5: oklch(88% 0.1 205); --heat-6: oklch(98% 0.03 200);
+}
 
 /* Nav: a floating pill */
 .nav { position: fixed; inset-inline: 0; top: var(--space-md); z-index: var(--z-sticky-nav); display: flex; justify-content: center; padding-inline: var(--space-md); pointer-events: none; }
@@ -150,24 +155,36 @@
   .photo--wide, .photo--tall { aspect-ratio: 4 / 3; min-height: 0; }
 }
 
-/* Intro: an original sea monster rises; roar in sounds/roar.mp3 */
+/* Intro: the real cut-out rises from the sea; roar in sounds/roar.mp3 */
 .intro { position: fixed; inset: 0; z-index: var(--z-modal); display: grid; place-items: end center; background: var(--color-paper); transition: opacity var(--dur-long) var(--ease-in); }
 .intro.is-gone { opacity: 0; pointer-events: none; }
 html.intro-on, html.intro-on body { overflow: clip; }
-.intro-scene { position: absolute; inset: 0; width: 100%; height: 100%; }
-.beast { transform: translateY(62%); transition: transform 3.2s var(--ease-out); }
-.beast-body { fill: var(--color-silhouette); }
-.plates path { fill: var(--color-shadow); transition: fill var(--dur-long) var(--ease-out); transition-delay: calc(1.6s + var(--i) * 90ms); }
-.eye { fill: var(--heat-0); transition: fill var(--dur-long) var(--ease-out) 2.4s; }
-.js .flash { opacity: 0; transform-origin: 860px 360px; transform: scale(0.3); transition: opacity 0.6s var(--ease-out) 2.6s, transform 1.2s var(--ease-out) 2.6s; }
+.intro-scene { position: absolute; inset: 0; overflow: clip; background: linear-gradient(var(--heat-0), var(--heat-1)); }
+.intro-glow { position: absolute; left: 50%; bottom: 10%; width: min(90vw, 1100px); aspect-ratio: 1; translate: -50% 0; border-radius: 50%; background: radial-gradient(circle, var(--heat-4), transparent 62%); opacity: 0; transition: opacity 1.4s var(--ease-out) 1.8s; }
+.intro-beast { position: absolute; left: 50%; bottom: 6%; width: min(80vw, 820px); height: auto; translate: -50% 0; transform: translateY(100%); transition: transform 3s var(--ease-out); filter: brightness(0.35); }
+.is-rising .intro-beast { transform: translateY(0); filter: brightness(1); transition: transform 3s var(--ease-out), filter 1.6s var(--ease-out) 1.6s; animation: shake 0.12s linear 1.9s 14; }
+.is-rising .intro-glow { opacity: 0.55; }
+@keyframes shake { 0%, 100% { translate: -50% 0; } 25% { translate: calc(-50% - 4px) 2px; } 75% { translate: calc(-50% + 4px) -2px; } }
+.intro-sea { position: absolute; inset: auto 0 0; width: 100%; height: 22%; }
 .sea { fill: var(--color-shadow); }
 .sea--back { fill: var(--color-paper); }
-.is-rising .beast { transform: translateY(0); }
-.is-rising .plates path { fill: var(--heat-4); }
-.is-rising .eye { fill: var(--heat-5); }
-.is-rising .flash { opacity: 0.85; transform: scale(1); }
-.intro-text { position: relative; display: grid; justify-items: center; gap: var(--space-md); padding-bottom: var(--space-3xl); transition: opacity var(--dur-long) var(--ease-out); }
+.intro-text { position: relative; display: grid; justify-items: center; gap: var(--space-md); padding-bottom: var(--space-3xl); }
 .is-rising .intro-text .btn--primary { opacity: 0; pointer-events: none; }
 .intro-title { font-family: var(--font-display); font-weight: var(--display-weight); font-size: clamp(3rem, 8vw, 6rem); line-height: 1; color: var(--color-ink); }
+.js .intro-title { opacity: 0.9; }
+@media (prefers-reduced-motion: reduce) { .intro-beast { transform: none; filter: none; } }
+
+/* Breakout: the city cut-out escapes the top of its frame */
+.breakout { position: relative; margin: 0; aspect-ratio: 1525 / 858; }
+.breakout-frame { position: absolute; inset: 30% 0 0; overflow: clip; border-radius: min(2vw, var(--radius-card)); box-shadow: var(--shadow-card); outline: var(--rule-hair) solid var(--color-rule); }
+.breakout-frame img, .breakout-cut { position: absolute; left: 0; width: 100%; height: auto; }
+.breakout-frame img { top: -42.86%; }
+.breakout-cut { top: 0; pointer-events: none; filter: drop-shadow(0 30px 40px var(--color-silhouette)); }
 .slot-label { position: absolute; inset: auto var(--space-md) var(--space-md); font-size: var(--text-sm); color: var(--color-muted); }
 @media (prefers-reduced-motion: reduce) { .beast { transform: none; } }
+
+/* Photographs keep their own cold film grade, not the warm kiln sepia */
+[data-slot] > img { filter: saturate(0.92) contrast(1.05); }
+.photo--eyes { aspect-ratio: 1173 / 622; }
+.letter-grid:has(.photo--eyes) { grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); }
+@media (max-width: 60rem) { .letter-grid:has(.photo--eyes) { grid-template-columns: minmax(0, 1fr); } }

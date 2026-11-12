@@ -1,11 +1,12 @@
-# Images du film à ajouter
+# Images du film
 
-Dépose ici les images officielles (dossier de presse Toho, site officiel du film), en haute résolution, avec exactement ces noms :
+Images fournies pour la critique, © Toho Co., Ltd.
 
-| Fichier | Où sur la page | Format conseillé |
-|---|---|---|
-| `hero.jpg` | Plein écran, en ouverture | 1920 × 1080 (paysage) |
-| `scene-mer.jpg` | Grande image après la phrase « moins un » | 1920 × 823 (très large) |
-| `koichi.jpg` | À côté de la lettre « Cher lecteur » | 1280 × 1600 (portrait) |
+| Fichier | Où sur la page |
+|---|---|
+| `hero.jpg` | Ouverture plein écran (la vague et l'avion) |
+| `cutout-roar.webp` | Godzilla détouré qui surgit dans l'intro |
+| `city.jpg` + `cutout-city.webp` | Godzilla qui sort du cadre, à Ginza |
+| `eyes.jpg` | À côté de la lettre « Cher lecteur » |
 
-Le son du rugissement va dans `sounds/roar.mp3`.
+Pour remplacer une image, garde le même nom de fichier.

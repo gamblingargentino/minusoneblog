@@ -14,29 +14,11 @@
 </head>
 <body>
 <div class="intro" id="intro" hidden role="dialog" aria-modal="true" aria-label="Ouverture">
-  <svg class="intro-scene" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-    <defs>
-      <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--heat-0)"/><stop offset="1" stop-color="var(--heat-1)"/></linearGradient>
-      <radialGradient id="ember" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="var(--heat-5)"/><stop offset=".45" stop-color="var(--heat-3)"/><stop offset="1" stop-color="var(--heat-3)" stop-opacity="0"/></radialGradient>
-    </defs>
-    <rect width="1600" height="900" fill="url(#sky)"/>
-    <g class="beast">
-      <path class="beast-body" d="M520 900 C540 760 600 640 680 560 C720 520 760 470 790 420 C805 395 830 380 860 385 C900 392 930 420 940 460 C955 520 990 560 1030 620 C1080 700 1100 800 1110 900 Z"/>
-      <g class="plates">
-        <path style="--i:0" d="M700 560 L660 470 L735 530 Z"/>
-        <path style="--i:1" d="M735 520 L705 400 L780 490 Z"/>
-        <path style="--i:2" d="M775 470 L760 330 L825 450 Z"/>
-        <path style="--i:3" d="M820 430 L835 290 L870 425 Z"/>
-        <path style="--i:4" d="M870 425 L920 300 L910 450 Z"/>
-        <path style="--i:5" d="M915 455 L990 360 L950 500 Z"/>
-        <path style="--i:6" d="M955 510 L1040 440 L990 560 Z"/>
-      </g>
-      <circle class="eye" cx="870" cy="420" r="5"/>
-    </g>
-    <circle class="flash" cx="860" cy="360" r="420" fill="url(#ember)"/>
-    <path class="sea" d="M0 760 Q200 730 400 760 T800 760 T1200 760 T1600 760 V900 H0 Z"/>
-    <path class="sea sea--back" d="M0 790 Q200 770 400 790 T800 790 T1200 790 T1600 790 V900 H0 Z"/>
-  </svg>
+  <div class="intro-scene" aria-hidden="true">
+    <div class="intro-glow"></div>
+    <img class="intro-beast" src="images/film/cutout-roar.webp" width="952" height="815" alt="">
+    <svg class="intro-sea" viewBox="0 0 1600 200" preserveAspectRatio="none"><path class="sea" d="M0 60 Q200 30 400 60 T800 60 T1200 60 T1600 60 V200 H0 Z"/><path class="sea sea--back" d="M0 100 Q200 80 400 100 T800 100 T1200 100 T1600 100 V200 H0 Z"/></svg>
+  </div>
   <div class="intro-text">
     <p class="intro-title">ゴジラ<span>-1.0</span></p>
     <button class="btn btn--primary" type="button" id="intro-enter">Entrer</button>
@@ -61,8 +43,8 @@
 <main id="top">
 
   <section class="hero" aria-labelledby="hero-title">
-    <figure class="hero-photo" data-slot="hero" data-alt="Godzilla au-dessus de Ginza">
-      <img src="images/film/hero.jpg" width="1920" height="1080" alt="Godzilla au-dessus de Ginza dans Godzilla Minus One" fetchpriority="high">
+    <figure class="hero-photo" data-slot="hero" data-alt="Godzilla surgit de la mer">
+      <img src="images/film/hero.jpg" width="2000" height="1398" alt="Godzilla surgit d’une vague au-dessus d’un avion, dans Godzilla Minus One" fetchpriority="high">
     </figure>
     <div class="container hero-inner">
       <h1 id="hero-title">Godzilla Minus One</h1>
@@ -97,13 +79,13 @@
     </div>
   </section>
 
-  <section class="showcase" aria-label="Une scène du film">
+  <section class="showcase" aria-label="Godzilla dans Ginza">
     <div class="container">
-      <figure class="photo photo--wide" data-slot="ruins" data-alt="Godzilla en mer">
-        <img src="images/film/scene-mer.jpg" width="1920" height="823" alt="Godzilla attaque un bateau en pleine mer dans Godzilla Minus One" loading="lazy">
-        <span class="slot-label">images/film/scene-mer.jpg</span>
+      <figure class="breakout">
+        <div class="breakout-frame"><img src="images/film/city.jpg" width="1525" height="858" alt="Godzilla rugit au milieu des immeubles de Ginza, dans Godzilla Minus One" loading="lazy"></div>
+        <img class="breakout-cut" src="images/film/cutout-city.webp" width="1525" height="858" alt="" loading="lazy">
       </figure>
-      <p class="caption">Godzilla en mer, l’une des scènes les plus tendues du film.</p>
+      <p class="caption">Ginza, 1947. Le monstre sort littéralement du cadre.</p>
     </div>
   </section>
 
@@ -152,9 +134,8 @@
         <p>Un regret : le début est un peu lent. Mais je retiens le message. On peut toujours se relever, et le vrai monstre, c’est aussi la guerre.</p>
         <p class="signoff">À minuit, L’Écran</p>
       </article>
-      <figure class="photo photo--tall" data-slot="ginza" data-alt="Kōichi Shikishima">
-        <img src="images/film/koichi.jpg" width="1280" height="1600" alt="Kōichi Shikishima, joué par Ryunosuke Kamiki" loading="lazy">
-        <span class="slot-label">images/film/koichi.jpg</span>
+      <figure class="photo photo--eyes" data-slot="eyes" data-alt="Le regard de Godzilla">
+        <img src="images/film/eyes.jpg" width="1173" height="622" alt="Gros plan sur les yeux de Godzilla">
       </figure>
     </div>
   </section>
