@@ -16,24 +16,26 @@
   /* Sound toggle + roar. Browsers allow sound only after a tap, so the roar tries to autoplay, then plays on the first tap. */
   const roar = document.getElementById('roar'), soundBtn = document.getElementById('sound');
   let soundOn = false;
-  const setSound = (on) => { soundOn = on; soundBtn.setAttribute('aria-pressed', on); soundBtn.setAttribute('aria-label', on ? 'Couper le son' : 'Activer le son'); if (!on) roar.pause(); };
+  const setSound = (on) => { soundOn = on; soundBtn.setAttribute('aria-pressed', on); if (!on) roar.pause(); };
   const playRoar = () => { roar.currentTime = 0; return roar.play().then(() => setSound(true)).catch(() => {}); };
   soundBtn.addEventListener('click', () => { if (soundOn) setSound(false); else playRoar(); });
 
   /* Opening: Godzilla rises smoothly out of the dark, the roar plays, then the scene dissolves into the hero */
   const curtain = document.getElementById('curtain');
-  const ready = () => { root.classList.add('ready'); root.style.overflow = ''; setTimeout(() => curtain.remove(), 1600); };
+  let opened = false;
+  const ready = () => { if (opened) return; opened = true; root.classList.add('ready'); setTimeout(() => curtain.remove(), 1600); };
   if (still) { curtain.remove(); root.classList.add('ready'); }
   else {
-    root.style.overflow = 'clip';
     requestAnimationFrame(() => requestAnimationFrame(() => curtain.classList.add('rise')));
     playRoar();
-    const firstTap = () => { if (!soundOn) playRoar(); };
-    addEventListener('pointerdown', firstTap, { once: true });
-    addEventListener('keydown', firstTap, { once: true });
+    /* If autoplay was blocked, the roar plays on a tap during the opening only */
+    curtain.addEventListener('pointerdown', () => { if (!soundOn) playRoar(); }, { once: true });
     const t = setTimeout(ready, 3400);
-    curtain.addEventListener('click', () => { clearTimeout(t); ready(); });
+    const skip = () => { clearTimeout(t); ready(); };
+    document.getElementById('skip').addEventListener('click', skip);
+    ['wheel', 'touchmove', 'keydown'].forEach((ev) => addEventListener(ev, skip, { once: true, passive: true }));
   }
+
 
   /* Statement words */
   const words = document.getElementById('words');
@@ -54,7 +56,7 @@
 
   /* Poll */
   const poll = document.querySelector('.poll');
-  poll.addEventListener('submit', (e) => { e.preventDefault(); const pick = poll.querySelector('input[name=film]:checked'); poll.querySelector('.form-status').textContent = pick ? `Ton choix : ${pick.nextElementSibling.textContent}. Le mien : Godzilla Minus One. (Les réponses ne sont pas encore enregistrées en ligne.)` : 'Choisis d’abord un film.'; });
+  poll.addEventListener('submit', (e) => { e.preventDefault(); const pick = poll.querySelector('input[name=film]:checked'); poll.querySelector('.form-status').textContent = pick ? `Ton choix : ${pick.nextElementSibling.textContent}. Le mien : Godzilla Minus One. Rien n’est encore enregistré en ligne, ni ton choix ni ton commentaire.` : 'Choisis d’abord un film.'; });
 
   /* Count-up score */
   const score = document.getElementById('score');
@@ -71,6 +73,8 @@
   const links = [...document.querySelectorAll('.nav-pill ul a')];
   const navObs = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) links.forEach((a) => a.setAttribute('aria-current', a.getAttribute('href') === '#' + e.target.id)); }), { rootMargin: '-45% 0px -50% 0px' });
   ['fiche', 'histoire', 'avis', 'verdict'].forEach((id) => navObs.observe(document.getElementById(id)));
+  const clearObs = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) links.forEach((a) => a.setAttribute('aria-current', 'false')); }), { rootMargin: '-45% 0px -50% 0px' });
+  document.querySelectorAll('.hero, .statement, .breakout-sec, #suivre').forEach((el) => clearObs.observe(el));
 
   /* Wipe reveals for pictures */
   const wo = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.querySelectorAll(':scope > .wipe').forEach((w) => w.classList.add('wiped')); wo.unobserve(e.target); } }), { threshold: 0.15 });

@@ -30,6 +30,7 @@
   <img class="curtain-beast" src="images/film/cutout-roar.webp" width="952" height="815" alt="">
   <p class="curtain-title">Minus One</p>
   <audio id="roar" src="sounds/roar.mp3" preload="auto"></audio>
+  <button class="curtain-skip glass" type="button" id="skip">Passer</button>
 </div>
 
 <header class="nav">
@@ -41,7 +42,7 @@
       <li><a href="#avis">Mon avis</a></li>
       <li><a href="#verdict">Verdict</a></li>
     </ul>
-    <button class="sound" type="button" id="sound" aria-pressed="false" aria-label="Activer le son"><span class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span></button>
+    <button class="sound" type="button" id="sound" aria-pressed="false"><span class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="sound-label">Son</span></button>
   </nav>
 </header>
 
@@ -102,6 +103,7 @@
         <p class="glass tag">Sans la fin</p>
       </div>
       <div class="ride-progress container" aria-hidden="true"><span class="ride-bar"><i></i></span><span class="ride-hint">Continue de scroller, ça défile sur le côté</span></div>
+      <p class="ride-swipe container" aria-hidden="true">Glisse les cartes sur le côté</p>
       <ol class="ride-track" id="track">
         <li class="ride-card">
           <img src="images/film/eyes.jpg" alt="" loading="lazy">
