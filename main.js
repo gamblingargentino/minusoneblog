@@ -1,32 +1,35 @@
 (() => {
   const root = document.documentElement;
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const $ = (s) => document.querySelector(s), $$ = (s) => [...document.querySelectorAll(s)];
+  const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+  const seg = (x, a, b) => clamp((x - a) / (b - a));
+  const smooth = (t) => t * t * (3 - 2 * t);
 
-  /* Split the title into letters */
-  document.querySelectorAll('.split').forEach((el) => {
-    const text = el.textContent; el.setAttribute('aria-label', text); el.textContent = '';
+  /* Split text into letters (hero title, footer mark) */
+  $$('.split, .split-foot').forEach((el) => {
+    const text = el.textContent, words = text.split(' '); el.setAttribute('aria-label', text); el.textContent = '';
     let i = 0;
-    text.split(' ').forEach((word, wi) => {
+    words.forEach((word, wi) => {
       const w = document.createElement('span'); w.className = 'word'; w.setAttribute('aria-hidden', 'true');
       [...word].forEach((ch) => { const s = document.createElement('span'); s.className = 'ch'; s.style.setProperty('--c', i++); s.textContent = ch; w.append(s); });
-      el.append(w); if (wi < text.split(' ').length - 1) el.append(' ');
+      el.append(w); if (wi < words.length - 1) el.append(' ');
     });
   });
 
-  /* Sound toggle + roar. Browsers allow sound only after a tap, so the roar tries to autoplay, then plays on the first tap. */
+  /* Sound toggle */
   const roar = document.getElementById('roar'), soundBtn = document.getElementById('sound');
   let soundOn = false;
   const setSound = (on) => { soundOn = on; if (soundBtn) soundBtn.setAttribute('aria-pressed', on); if (!on && roar) roar.pause(); };
   const playRoar = () => { if (!roar) return Promise.resolve(); try { roar.currentTime = 0; } catch (e) {} return roar.play().then(() => setSound(true)).catch(() => {}); };
   if (soundBtn) soundBtn.addEventListener('click', () => { if (soundOn) setSound(false); else playRoar(); });
+  if (roar) { roar.addEventListener('playing', () => setSound(true)); roar.addEventListener('ended', () => setSound(false)); }
 
-  /* Opening is run by intro.js (3D model). This exposes what it needs. */
+  /* Opening is run by intro.js; this is what it needs */
   const curtain = document.getElementById('curtain');
   let opened = false;
   const ready = () => { if (opened) return; opened = true; root.classList.add('ready'); setTimeout(() => { if (curtain) curtain.remove(); }, 1500); };
-  window.siteReady = ready;
-  window.playRoar = playRoar;
-  window.isSoundOn = () => soundOn;
+  window.siteReady = ready; window.playRoar = playRoar;
   if (still || !curtain) { if (curtain) curtain.remove(); root.classList.add('ready'); opened = true; }
   else {
     const skip = () => { window.introSkipped = true; ready(); };
@@ -34,78 +37,97 @@
     ['wheel', 'touchmove', 'keydown'].forEach((ev) => addEventListener(ev, skip, { once: true, passive: true }));
   }
 
-
   /* Statement words */
-  const words = document.getElementById('words');
-  const hot = ['zéro.', 'moins', 'un.'];
+  const words = document.getElementById('words'); const hot = ['zéro.', 'moins', 'un.']; let wEls = [];
   if (words) {
-    const parts = words.textContent.split(' ');
-    words.setAttribute('aria-label', words.textContent);
-    words.innerHTML = parts.map((w) => `<span class="w${hot.includes(w) ? ' is-hot' : ''}" aria-hidden="true">${w}</span>`).join(' ');
+    const text = words.textContent; words.setAttribute('aria-label', text);
+    words.innerHTML = text.split(' ').map((w) => `<span class="w${hot.includes(w) ? ' is-hot' : ''}" aria-hidden="true">${w}</span>`).join(' ');
+    wEls = [...words.querySelectorAll('.w')];
   }
-  const wEls = words ? [...words.querySelectorAll('.w')] : [];
 
-  /* Reveals */
+  /* Reveal on arrival */
   const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: 0.2 });
-  document.querySelectorAll('.reveal, .verdict').forEach((el) => io.observe(el));
-
-  /* Flip cards */
-  document.querySelectorAll('.card').forEach((c) => c.addEventListener('click', () => c.setAttribute('aria-pressed', c.getAttribute('aria-pressed') !== 'true')));
-
-  /* Count-up score */
-  const score = document.getElementById('score');
-  const vObs = new IntersectionObserver(([e]) => {
-    if (!e.isIntersecting) return; vObs.disconnect();
-    if (still) return;
-    const t0 = performance.now();
-    const tick = (t) => { const k = Math.min(1, (t - t0) / 1400); const v = 4.5 * (1 - Math.pow(1 - k, 4)); score.textContent = v.toFixed(1).replace('.', ','); if (k < 1) requestAnimationFrame(tick); };
-    requestAnimationFrame(tick);
-  }, { threshold: 0.4 });
-  vObs.observe(document.getElementById('verdict'));
-
-  /* Nav: mark the section in view */
-  const links = [...document.querySelectorAll('.nav-pill ul a')];
-  const navObs = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) links.forEach((a) => a.setAttribute('aria-current', a.getAttribute('href') === '#' + e.target.id)); }), { rootMargin: '-45% 0px -50% 0px' });
-  ['fiche', 'histoire', 'avis', 'verdict'].forEach((id) => navObs.observe(document.getElementById(id)));
-  const clearObs = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) links.forEach((a) => a.setAttribute('aria-current', 'false')); }), { rootMargin: '-45% 0px -50% 0px' });
-  document.querySelectorAll('.hero, .statement, .breakout-sec, .close-line').forEach((el) => clearObs.observe(el));
-
-  /* Wipe reveals for pictures */
-  const wo = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.querySelectorAll(':scope > .wipe').forEach((w) => w.classList.add('wiped')); wo.unobserve(e.target); } }), { threshold: 0.15 });
-  new Set([...document.querySelectorAll('.wipe')].map((el) => el.parentElement)).forEach((p) => wo.observe(p));
+  $$('.reveal, .mask, .footer-mark').forEach((el) => io.observe(el));
 
   /* Flip cards: only the visible face is read aloud */
-  document.querySelectorAll('.card').forEach((c) => { const sync = () => { const on = c.getAttribute('aria-pressed') === 'true'; c.querySelector('.card-front').setAttribute('aria-hidden', on); c.querySelector('.card-back').setAttribute('aria-hidden', !on); }; sync(); c.addEventListener('click', () => requestAnimationFrame(sync)); });
+  $$('.card').forEach((c) => {
+    const sync = () => { const on = c.getAttribute('aria-pressed') === 'true'; c.querySelector('.card-front').setAttribute('aria-hidden', on); c.querySelector('.card-back').setAttribute('aria-hidden', !on); };
+    sync(); c.addEventListener('click', () => { c.setAttribute('aria-pressed', c.getAttribute('aria-pressed') !== 'true'); sync(); });
+  });
 
-  /* Mobile: nav hides on scroll down, returns on scroll up */
-  let lastY = scrollY; const navEl = document.querySelector('.nav');
-  addEventListener('scroll', () => { const y = scrollY; navEl.classList.toggle('nav--hidden', y > lastY && y > 200); lastY = y; }, { passive: true });
+  /* Nav: current section, and hide on scroll down (phones) */
+  const links = $$('.nav-pill ul a'), band = { rootMargin: '-45% 0px -50% 0px' };
+  const navObs = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) links.forEach((a) => a.setAttribute('aria-current', a.getAttribute('href') === '#' + e.target.id)); }), band);
+  ['fiche', 'histoire', 'avis', 'verdict'].forEach((id) => { const el = document.getElementById(id); if (el) navObs.observe(el); });
+  const clearObs = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) links.forEach((a) => a.setAttribute('aria-current', 'false')); }), band);
+  $$('.hero, .portal, .close-line').forEach((el) => clearObs.observe(el));
+  let lastY = scrollY; const navEl = $('.nav');
+  addEventListener('scroll', () => { const y = scrollY; if (navEl) navEl.classList.toggle('nav--hidden', y > lastY && y > 200); lastY = y; }, { passive: true });
 
-  /* Scroll-linked scenes */
-  if (still) return;
-  if (!document.querySelector('.hero') || !document.getElementById('track') || !document.getElementById('breakout') || !document.getElementById('verdict')) return;
-  const hero = document.querySelector('.hero'), stmt = document.querySelector('.statement'), ride = document.querySelector('.ride'), track = document.getElementById('track'), brk = document.getElementById('breakout'), verdict = document.getElementById('verdict');
-  const prog = (el) => { const r = el.getBoundingClientRect(); return Math.min(1, Math.max(0, -r.top / (r.height - innerHeight))); };
-  let queued = false;
-  const frame = () => {
-    queued = false;
-    hero.style.setProperty('--p', prog(hero).toFixed(4));
-    const sp = prog(stmt); const lit = Math.round(sp * 1.25 * wEls.length);
-    wEls.forEach((w, i) => { w.classList.toggle('lit', i < lit); w.classList.toggle('hot', i < lit && w.classList.contains('is-hot')); });
-    const br = brk.getBoundingClientRect(); const b = Math.min(1, Math.max(0, (innerHeight - br.top) / (innerHeight * 1.1)));
-    brk.style.setProperty('--b', b.toFixed(4));
-    if (matchMedia('(min-width: 52rem)').matches) {
-      const max = track.scrollWidth - innerWidth; const rp = prog(ride);
-      track.style.setProperty('--r', (rp * max).toFixed(1));
-      ride.style.setProperty('--rp', rp.toFixed(3));
-      track.querySelectorAll('.ride-card').forEach((c) => { const cr = c.getBoundingClientRect(); c.style.setProperty('--k', ((cr.left + cr.width / 2 - innerWidth / 2) / innerWidth).toFixed(3)); });
-    }
-    const vr = verdict.getBoundingClientRect(); verdict.style.setProperty('--v', Math.min(1, Math.max(0, 1 - vr.top / innerHeight)).toFixed(3));
-  };
-  addEventListener('scroll', () => { if (!queued) { queued = true; requestAnimationFrame(frame); } }, { passive: true });
-  const sizeRide = () => { if (matchMedia('(min-width: 52rem)').matches) ride.style.height = (track.scrollWidth - innerWidth + innerHeight * 1.15) + 'px'; else ride.style.height = ''; };
+  const verdict = document.getElementById('verdict');
+  if (still) { if (verdict) verdict.classList.add('in'); return; }
+
+  /* ---------- Scroll scenes: targets are read from scroll, then eased toward every frame ---------- */
+  const hero = $('.hero'), portal = document.getElementById('portal'), stage = $('.portal-stage'), holeText = document.getElementById('hole-text'), holeFull = (() => {
+    const m = document.getElementById('hole'); if (!m) return null;
+    const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect'); r.setAttribute('width', '100%'); r.setAttribute('height', '100%'); r.setAttribute('fill', 'white'); r.setAttribute('opacity', '0'); m.append(r); return r;
+  })();
+  const ride = $('.ride'), track = document.getElementById('track'), cards = $$('.ride-card'), bar = $('.progress');
+  const wide = matchMedia('(min-width: 52rem)');
+  const prog = (el) => { const r = el.getBoundingClientRect(); return clamp(-r.top / Math.max(1, r.height - innerHeight)); };
+  const sizeRide = () => { if (!ride || !track) return; ride.style.height = wide.matches ? (track.scrollWidth - innerWidth + innerHeight * 1.2) + 'px' : ''; };
   sizeRide();
-  addEventListener('resize', () => { sizeRide(); frame(); });
-  frame();
 
+  const tgt = { cover: 0, portal: 0, ride: 0, verdict: 0, page: 0 }, cur = { ...tgt };
+  const read = () => {
+    tgt.cover = clamp(scrollY / innerHeight);
+    if (portal) tgt.portal = prog(portal);
+    if (ride) tgt.ride = prog(ride);
+    if (verdict) tgt.verdict = prog(verdict);
+    tgt.page = clamp(scrollY / Math.max(1, document.documentElement.scrollHeight - innerHeight));
+  };
+  let origin = null;
+  const apply = () => {
+    if (hero) hero.style.setProperty('--cover', cur.cover.toFixed(4));
+    if (bar) bar.style.setProperty('--page', cur.page.toFixed(4));
+
+    if (stage) {
+      const p = cur.portal;
+      /* 0–.28 words light up · .28–.4 words leave, the "-1" grows in · .4–.72 fall through it · .78–.96 the photo becomes a frame */
+      const lit = Math.round(seg(p, 0.02, 0.28) * wEls.length);
+      wEls.forEach((w, i) => { const on = i < lit; w.classList.toggle('lit', on); w.classList.toggle('hot', on && w.classList.contains('is-hot')); });
+      stage.style.setProperty('--wo', (1 - smooth(seg(p, 0.28, 0.35))).toFixed(3));
+      if (holeText) {
+        if (!origin) { try { const b = holeText.getBBox(); origin = { x: b.x + b.width * 0.8, y: b.y + b.height * 0.5 }; } catch (e) { origin = { x: innerWidth / 2, y: innerHeight / 2 }; } }
+        const grow = smooth(seg(p, 0.34, 0.42)), fall = seg(p, 0.42, 0.72);
+        const s = grow * Math.exp(fall * fall * Math.log(160));
+        holeText.setAttribute('transform', `translate(${origin.x} ${origin.y}) scale(${s.toFixed(4)}) translate(${-origin.x} ${-origin.y})`);
+        if (holeFull) holeFull.setAttribute('opacity', smooth(seg(p, 0.62, 0.72)).toFixed(3));
+      }
+      stage.style.setProperty('--cut', p > 0.72 ? 1 : 0);
+      stage.style.setProperty('--f', smooth(seg(p, 0.78, 0.96)).toFixed(4));
+      stage.style.setProperty('--cap', smooth(seg(p, 0.92, 0.99)).toFixed(3));
+    }
+
+    if (ride && track && wide.matches) {
+      const max = track.scrollWidth - innerWidth;
+      track.style.setProperty('--r', (cur.ride * max).toFixed(1)); ride.style.setProperty('--rp', cur.ride.toFixed(3));
+      cards.forEach((c) => { const r = c.getBoundingClientRect(); const k = (r.left + r.width / 2 - innerWidth / 2) / innerWidth; c.style.setProperty('--k', k.toFixed(3)); c.style.setProperty('--far', clamp(Math.abs(k) * 1.2).toFixed(3)); });
+    }
+
+    if (verdict) { verdict.style.setProperty('--v', smooth(seg(cur.verdict, 0, 0.7)).toFixed(4)); if (cur.verdict > 0.18) verdict.classList.add('in'); }
+  };
+
+  let running = false;
+  const loop = () => {
+    let moving = false;
+    for (const k in tgt) { const d = tgt[k] - cur[k]; if (Math.abs(d) > 0.0004) { cur[k] += d * 0.14; moving = true; } else cur[k] = tgt[k]; }
+    apply();
+    if (moving) requestAnimationFrame(loop); else running = false;
+  };
+  const kick = () => { read(); if (!running) { running = true; requestAnimationFrame(loop); } };
+  addEventListener('scroll', kick, { passive: true });
+  addEventListener('resize', () => { origin = null; sizeRide(); kick(); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { origin = null; sizeRide(); kick(); });
+  read(); Object.assign(cur, tgt); apply();
 })();
