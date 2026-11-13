@@ -130,4 +130,64 @@
   addEventListener('resize', () => { origin = null; sizeRide(); kick(); });
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { origin = null; sizeRide(); kick(); });
   read(); Object.assign(cur, tgt); apply();
+
+  /* ---------- Presentation mode: the page scrolls itself, slowly, for a big screen ----------
+     Start: the "Lecture auto" button, the P key, or ?auto in the address. Space pauses. Scrolling or Escape hands control back. */
+  const autoBtn = document.getElementById('auto');
+  if (autoBtn) {
+    autoBtn.hidden = false;
+    const top = (el) => el.getBoundingClientRect().top + scrollY;
+    const plan = () => {
+      const vh = innerHeight, steps = [], go = (y, travel, hold, act) => steps.push({ y: Math.max(0, Math.round(y)), travel, hold, act });
+      const fiche = document.getElementById('fiche'), avis = document.getElementById('avis'), deck = $('.deck'), close = $('.close-line');
+      go(0, 0.01, 3);
+      if (fiche) go(top(fiche) - vh * 0.12, 5, 6);
+      if (portal) { go(top(portal), 4, 0.5); go(top(portal) + (portal.offsetHeight - vh) * 0.3, 8, 1.5); go(top(portal) + (portal.offsetHeight - vh), 16, 4); }
+      if (ride) { go(top(ride), 4, 2.5); go(top(ride) + (ride.offsetHeight - vh), 24, 3); }
+      if (avis) go(top(avis) - vh * 0.1, 4, 12);
+      if (deck) go(top(deck) - vh * 0.3, 4, 1, 'cards');
+      if (verdict) go(top(verdict) + (verdict.offsetHeight - vh) * 0.9, 9, 7);
+      if (close) go(top(close) - vh * 0.25, 4, 5);
+      go(document.documentElement.scrollHeight - vh, 5, 0);
+      return steps;
+    };
+    const ease = (t) => 0.5 - Math.cos(Math.PI * t) / 2;
+    let on = false, paused = false, steps = [], idx = 0, from = 0, t0 = 0, phase = 'travel', raf = 0, last = 0;
+    const label = () => { autoBtn.textContent = !on ? 'Lecture auto' : paused ? 'Reprendre' : 'Pause'; autoBtn.setAttribute('aria-pressed', on && !paused); root.classList.toggle('auto-on', on); };
+    const stop = () => { on = false; paused = false; cancelAnimationFrame(raf); label(); };
+    const flipCards = (done) => {
+      const cs = $$('.card').filter((c) => c.getAttribute('aria-pressed') !== 'true'); let i = 0;
+      const next = () => { if (!on) return; if (paused) { setTimeout(next, 300); return; } if (i >= cs.length) { setTimeout(done, 2500); return; } cs[i++].click(); setTimeout(next, 2800); };
+      next();
+    };
+    const begin = (i) => { idx = i; if (idx >= steps.length) { stop(); return; } from = scrollY; t0 = performance.now(); phase = 'travel'; };
+    const tick = (now) => {
+      if (!on) return;
+      if (paused) { t0 += now - last; last = now; raf = requestAnimationFrame(tick); return; }
+      last = now;
+      const st = steps[idx], el = (now - t0) / 1000;
+      if (phase === 'travel') {
+        const k = Math.min(1, el / st.travel); scrollTo(0, from + (st.y - from) * ease(k));
+        if (k >= 1) { phase = 'hold'; t0 = now; if (st.act === 'cards') { phase = 'act'; flipCards(() => { if (on) begin(idx + 1); }); } }
+      } else if (phase === 'hold' && el >= st.hold) begin(idx + 1);
+      raf = requestAnimationFrame(tick);
+    };
+    const start = () => {
+      if (!root.classList.contains('ready')) { window.introSkipped = true; ready(); }
+      sizeRide(); steps = plan(); on = true; paused = false; label();
+      let i = 0; while (i < steps.length - 1 && steps[i].y < scrollY - 4) i++;
+      begin(scrollY < 4 ? 0 : i); last = performance.now(); raf = requestAnimationFrame(tick);
+    };
+    autoBtn.addEventListener('click', () => { if (!on) start(); else { paused = !paused; label(); } });
+    addEventListener('keydown', (e) => {
+      if (e.key === 'p' || e.key === 'P') { if (on) stop(); else start(); }
+      else if (on && e.key === ' ') { e.preventDefault(); paused = !paused; label(); }
+      else if (on && e.key === 'Escape') stop();
+    });
+    ['wheel', 'touchmove'].forEach((ev) => addEventListener(ev, () => { if (on) stop(); }, { passive: true }));
+    addEventListener('resize', () => { if (on) steps = plan(); });
+    if (new URLSearchParams(location.search).has('auto')) {
+      const wait = setInterval(() => { if (root.classList.contains('ready')) { clearInterval(wait); setTimeout(start, 2500); } }, 200);
+    }
+  }
 })();
