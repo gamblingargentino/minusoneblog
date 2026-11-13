@@ -62,16 +62,43 @@ h2 { text-transform: uppercase; font-size: clamp(2.6rem, 6.5vw, 5.6rem); line-he
 .btn:active { transform: scale(0.97); }
 .btn:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
 
-/* ---------- Opening (3D, intro.js) ---------- */
+/* ---------- Opening: start screen over the live storm, then the 3D scene ---------- */
 .curtain { display: none; }
-.js .curtain { display: block; position: fixed; inset: 0; z-index: var(--z-modal); overflow: clip; background: var(--color-paper); transition: opacity 1.2s var(--ease-in-out); animation: curtain-failsafe 0.8s ease-out 14s forwards; }
-.stage { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity 1s var(--ease-out); }
+.js .curtain { display: grid; place-items: center; position: fixed; inset: 0; z-index: var(--z-modal); overflow: auto; background: var(--color-paper); transition: opacity 1.2s var(--ease-in-out); }
+.stage { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity 1.2s var(--ease-out); }
 .curtain.live .stage { opacity: 1; }
-.stage-load { position: absolute; left: 50%; top: 50%; translate: -50% -50%; margin: 0; font-size: var(--text-sm); color: var(--color-muted); }
+.ready .curtain { opacity: 0; pointer-events: none; }
+.begin { position: relative; z-index: 1; display: grid; gap: var(--space-lg); width: min(92vw, 520px); margin: var(--space-xl) 0; padding: var(--space-xl); border-radius: var(--radius-card); background: color-mix(in oklab, var(--color-paper) 88%, transparent); box-shadow: inset 0 0 0 1px var(--color-rule), 0 40px 80px var(--shade); transition: opacity 0.6s var(--ease-out), transform 0.8s var(--ease-expo); }
+.begin.gone { opacity: 0; transform: translateY(24px) scale(0.98); pointer-events: none; }
+.begin-mark { margin: 0; font-family: var(--font-display); font-stretch: 90%; font-weight: 700; color: var(--color-ink-2); }
+.begin h2 { font-size: clamp(2rem, 4vw, 2.8rem); }
+.field { display: grid; gap: var(--space-xs); margin: 0; padding: 0; border: 0; min-width: 0; }
+.field > label, .field > legend { display: flex; justify-content: space-between; width: 100%; padding: 0; font-size: var(--text-sm); color: var(--color-ink-2); }
+.field > legend { margin-bottom: var(--space-xs); }
+.field-row { display: flex; align-items: center; gap: var(--space-md); }
+.field output { color: var(--color-ink); font-variant-numeric: tabular-nums; }
+.field input[type="range"] { flex: 1; min-width: 0; height: 44px; accent-color: var(--color-ink); cursor: pointer; }
+.btn--small { min-height: 44px; padding: 0 var(--space-md); font-size: var(--text-sm); }
+.seg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2xs); padding: var(--space-2xs); border-radius: var(--radius-pill); background: var(--color-paper-2); box-shadow: inset 0 0 0 1px var(--color-rule); }
+.seg input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.seg label { display: grid; place-items: center; min-height: 44px; border-radius: var(--radius-pill); font-size: var(--text-sm); color: var(--color-ink-2); cursor: pointer; transition: background-color var(--dur-short) var(--ease-out), color var(--dur-short) var(--ease-out); }
+.seg input:checked + label { background: var(--color-ink); color: var(--color-accent-ink); }
+.seg input:focus-visible + label { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.help { margin: 0; min-height: 2lh; font-size: var(--text-sm); line-height: 1.45; color: var(--color-muted); }
+.field--inline { grid-template-columns: auto 1fr; align-items: center; column-gap: var(--space-sm); }
+.field--inline input { width: 20px; height: 20px; accent-color: var(--color-ink); }
+.field--inline > label { font-size: var(--text-md); color: var(--color-ink); }
+.field--inline .help { grid-column: 1 / -1; min-height: 1lh; }
+.begin-actions { display: flex; flex-wrap: wrap; gap: var(--space-sm); }
+.btn:disabled { opacity: 0.55; cursor: not-allowed; }
 .curtain-skip { position: absolute; z-index: 2; right: var(--space-lg); bottom: var(--space-lg); min-height: 44px; padding: 0 var(--space-lg); border: 0; border-radius: var(--radius-pill); background: var(--color-paper-2); box-shadow: inset 0 0 0 1px var(--color-rule); color: var(--color-ink); font: 500 var(--text-sm)/1 var(--font-body); cursor: pointer; }
 .curtain-skip:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
-.ready .curtain { opacity: 0; pointer-events: none; }
-@keyframes curtain-failsafe { to { opacity: 0; visibility: hidden; pointer-events: none; } }
+
+/* Cue counter (pas à pas / lecture auto) */
+.stepper { position: fixed; z-index: var(--z-sticky); right: var(--space-lg); bottom: var(--space-lg); display: flex; gap: var(--space-sm); margin: 0; padding: var(--space-xs) var(--space-md); border-radius: var(--radius-pill); background: var(--color-paper); box-shadow: inset 0 0 0 1px var(--color-rule); font-size: var(--text-sm); color: var(--color-ink-2); }
+.stepper span:first-child { color: var(--color-ink); font-variant-numeric: tabular-nums; }
+html.stepped { scrollbar-width: none; } html.stepped::-webkit-scrollbar { display: none; }
+.stepped .scroll-hint, .stepped .ride-hint { display: none; }
 
 /* ---------- Hero: pinned; the page slides over it ---------- */
 .hero { position: sticky; top: 0; z-index: 0; height: 100dvh; display: grid; align-items: end; overflow: clip; }
@@ -79,7 +106,6 @@ h2 { text-transform: uppercase; font-size: clamp(2.6rem, 6.5vw, 5.6rem); line-he
 .hero-media img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; transform: scale(calc(1.06 + var(--cover, 0) * 0.1)); }
 .hero-media::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, var(--color-paper) 0%, color-mix(in oklab, var(--color-paper) 40%, transparent) 40%, transparent 70%); }
 .hero-copy { position: relative; z-index: 1; display: grid; gap: var(--space-md); width: 100%; max-width: var(--container); margin-inline: auto; padding: 0 var(--gutter) var(--space-3xl); opacity: calc(1 - var(--cover, 0) * 1.6); transform: translateY(calc(var(--cover, 0) * -90px)); }
-.hero-kicker { margin: 0; font-size: var(--text-sm); color: var(--color-ink-2); }
 .hero h1 { text-transform: uppercase; font-size: clamp(3.4rem, 10vw, 9rem); line-height: 0.88; font-weight: 900; max-width: 9ch; }
 .actions { display: flex; flex-wrap: wrap; gap: var(--space-sm); margin-top: var(--space-sm); }
 .scroll-hint { position: absolute; right: var(--gutter); bottom: var(--space-3xl); z-index: 1; display: flex; align-items: center; gap: var(--space-sm); margin: 0; font-size: var(--text-sm); color: var(--color-ink-2); }
@@ -93,8 +119,6 @@ h2 { text-transform: uppercase; font-size: clamp(2.6rem, 6.5vw, 5.6rem); line-he
 .ready .split .ch { transform: none; transition: transform 1.1s var(--ease-expo); transition-delay: calc(0.15s + var(--c) * 24ms); }
 .js .rise { opacity: 0; transform: translateY(16px); }
 .ready .rise { opacity: 1; transform: none; transition: opacity 0.9s var(--ease-expo) var(--d, 0s), transform 0.9s var(--ease-expo) var(--d, 0s); }
-.js:not(.ready) .split .ch, .js:not(.ready) .rise { animation: show-failsafe 0.6s ease-out 14s forwards; }
-@keyframes show-failsafe { to { opacity: 1; transform: none; } }
 
 /* ---------- The sheet: everything after the hero rides up over it ---------- */
 .sheet { position: relative; z-index: 1; background: var(--color-paper); border-radius: calc(var(--radius-card) * 1.4) calc(var(--radius-card) * 1.4) 0 0; box-shadow: 0 -40px 80px var(--shade); }
@@ -237,6 +261,7 @@ h2 { text-transform: uppercase; font-size: clamp(2.6rem, 6.5vw, 5.6rem); line-he
 /* ---------- Reduced motion: everything visible, nothing pinned ---------- */
 @media (prefers-reduced-motion: reduce) {
   .js .curtain { display: none; }
+  .stepper { display: none; }
   .hero { position: relative; }
   .portal, .verdict { height: auto; } .portal-stage, .verdict-sticky { position: relative; }
   .portal-stage { --f: 1; --cut: 1; --cap: 1; height: 120vh; align-items: start; padding-top: var(--space-4xl); }

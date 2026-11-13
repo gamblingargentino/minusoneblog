@@ -19,23 +19,53 @@
 
   /* Sound toggle */
   const roar = document.getElementById('roar'), soundBtn = document.getElementById('sound');
-  if (roar) roar.volume = 0.4;
   let soundOn = false;
   const setSound = (on) => { soundOn = on; if (soundBtn) soundBtn.setAttribute('aria-pressed', on); if (!on && roar) roar.pause(); };
   const playRoar = () => { if (!roar) return Promise.resolve(); try { roar.currentTime = 0; } catch (e) {} return roar.play().then(() => setSound(true)).catch(() => {}); };
   if (soundBtn) soundBtn.addEventListener('click', () => { if (soundOn) setSound(false); else playRoar(); });
   if (roar) { roar.addEventListener('playing', () => setSound(true)); roar.addEventListener('ended', () => setSound(false)); }
 
-  /* Opening is run by intro.js; this is what it needs */
-  const curtain = document.getElementById('curtain');
-  let opened = false;
-  const ready = () => { if (opened) return; opened = true; root.classList.add('ready'); setTimeout(() => { if (curtain) curtain.remove(); }, 1500); };
-  window.siteReady = ready; window.playRoar = playRoar;
-  if (still || !curtain) { if (curtain) curtain.remove(); root.classList.add('ready'); opened = true; }
+  /* ---------- Start screen: the presenter sets things up, then the opening plays ---------- */
+  const curtain = document.getElementById('curtain'), begin = document.getElementById('begin'), emerge = document.getElementById('emerge');
+  const store = { get(k, d) { try { const v = localStorage.getItem('edm-' + k); return v === null ? d : v; } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem('edm-' + k, v); } catch (e) {} } };
+  const settings = { volume: clamp(+store.get('volume', 40) / 100), mode: store.get('mode', 'step'), intro: store.get('intro', '1') === '1' };
+  const applyVolume = () => { if (roar) roar.volume = settings.volume; if (emerge) emerge.volume = settings.volume; };
+  applyVolume();
+  let opened = false; const readyHooks = [];
+  const ready = () => { if (opened) return; opened = true; root.classList.add('ready'); setTimeout(() => { if (curtain) curtain.remove(); readyHooks.forEach((f) => f()); }, 1500); };
+  window.site = { settings, ready, playRoar };
+  if (still || !curtain || !begin) { if (curtain) curtain.remove(); root.classList.add('ready'); opened = true; settings.mode = 'free'; }
   else {
-    const skip = () => { window.introSkipped = true; ready(); };
-    const skipBtn = document.getElementById('skip'); if (skipBtn) skipBtn.addEventListener('click', skip);
-    ['wheel', 'touchmove', 'keydown'].forEach((ev) => addEventListener(ev, skip, { once: true, passive: true }));
+    const vol = document.getElementById('vol'), volOut = document.getElementById('vol-out'), introOn = document.getElementById('intro-on'), status = document.getElementById('intro-status'), help = document.getElementById('mode-help'), go = document.getElementById('go'), skipBtn = document.getElementById('skip');
+    const HELP = { step: 'Un coup de molette, Espace ou une flèche lance la scène suivante. Elle se joue toute seule, tu avances quand tu veux.', auto: 'Tout défile tout seul, lentement (environ 3 minutes). Espace met en pause.', free: 'Défilement normal à la molette, sans rien d’automatique.' };
+    vol.value = Math.round(settings.volume * 100); introOn.checked = settings.intro;
+    const radio = begin.querySelector(`input[name=mode][value="${settings.mode}"]`); if (radio) radio.checked = true;
+    const sync = () => {
+      settings.volume = vol.value / 100; settings.intro = introOn.checked; settings.mode = begin.querySelector('input[name=mode]:checked').value;
+      volOut.textContent = vol.value + ' %'; help.textContent = HELP[settings.mode]; applyVolume();
+      store.set('volume', vol.value); store.set('mode', settings.mode); store.set('intro', settings.intro ? '1' : '0');
+    };
+    begin.addEventListener('input', sync); sync();
+    document.getElementById('vol-test').addEventListener('click', () => { applyVolume(); playRoar(); });
+    document.getElementById('fs').addEventListener('click', () => { if (document.fullscreenElement) document.exitFullscreen(); else if (root.requestFullscreen) root.requestFullscreen().catch(() => {}); });
+    const intro = () => window.intro || { state: 'loading', progress: 0 };
+    const showStatus = () => { const i = intro(); status.textContent = i.state === 'ready' ? 'Modèle 3D prêt.' : i.state === 'failed' ? 'Ouverture 3D indisponible ici, la page s’ouvrira directement.' : `Chargement du modèle… ${Math.round(i.progress * 100)} %`; };
+    const watch = setInterval(() => { showStatus(); if (intro().state !== 'loading') clearInterval(watch); }, 200);
+    const launch = () => {
+      begin.classList.add('gone'); setSound(false); if (roar) roar.pause();
+      const i = intro();
+      if (settings.intro && i.state === 'ready' && i.play) { skipBtn.hidden = false; i.play(); }
+      else { window.introSkipped = true; ready(); }
+    };
+    begin.addEventListener('submit', (e) => {
+      e.preventDefault(); sync(); go.disabled = true;
+      if (settings.intro && intro().state === 'loading') { go.textContent = 'Chargement…'; const t0 = Date.now(); const w = setInterval(() => { if (intro().state !== 'loading' || Date.now() - t0 > 20000) { clearInterval(w); launch(); } }, 150); }
+      else launch();
+    });
+    const skip = () => { if (!begin.classList.contains('gone') || opened) return; window.introSkipped = true; ready(); };
+    skipBtn.addEventListener('click', skip);
+    addEventListener('keydown', (e) => { if (e.key === 'Escape') skip(); });
+    go.focus();
   }
 
   /* Statement words */
@@ -132,63 +162,94 @@
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { origin = null; sizeRide(); kick(); });
   read(); Object.assign(cur, tgt); apply();
 
-  /* ---------- Presentation mode: the page scrolls itself, slowly, for a big screen ----------
-     Start: the "Lecture auto" button, the P key, or ?auto in the address. Space pauses. Scrolling or Escape hands control back. */
-  const autoBtn = document.getElementById('auto');
-  if (autoBtn) {
+  /* ---------- Scenes on cue ----------
+     The page is a list of cues. In "pas à pas" one input (wheel, Space, arrow, swipe) fires the next cue and the scene
+     plays out by itself; in "automatique" the cues fire on a timer. "Libre" leaves normal scrolling alone. */
+  const autoBtn = document.getElementById('auto'), stepper = document.getElementById('stepper'), stepN = document.getElementById('step-n'), stepTip = document.getElementById('step-tip');
+  const top = (el) => el.getBoundingClientRect().top + scrollY;
+  const cardsAll = $$('.card');
+  const flip = (c, on) => { if ((c.getAttribute('aria-pressed') === 'true') !== on) c.click(); };
+  const cues = () => {
+    const vh = innerHeight, list = [], cue = (id, path, hold, act) => list.push({ id, path: path.map(([y, t]) => [Math.max(0, Math.round(y)), t]), hold, act });
+    const fiche = document.getElementById('fiche'), avis = document.getElementById('avis'), deck = $('.deck'), close = $('.close-line');
+    cue('top', [[0, 1.6]], 4);
+    if (fiche) cue('fiche', [[top(fiche) - vh * 0.12, 2.4]], 7);
+    if (portal) { const p0 = top(portal), span = portal.offsetHeight - vh;
+      cue('portal', [[p0, 1.8], [p0 + span * 0.3, 6.5]], 3);
+      cue('fall', [[p0 + span * 0.74, 5.5]], 2.5);
+      cue('frame', [[p0 + span, 3.6]], 5); }
+    if (ride) { const r0 = top(ride), span = ride.offsetHeight - vh, n = cards.length;
+      cue('histoire', [[r0, 2.2]], 6);
+      for (let i = 1; i < n; i++) cue('histoire', [[r0 + span * (i / (n - 1)), 2.8]], 6); }
+    if (avis) cue('avis', [[top(avis) - vh * 0.1, 2.4]], 14);
+    if (deck) { cue('deck', [[top(deck) - vh * 0.3, 2]], 1.5); cardsAll.forEach((c, i) => cue('deck', [], 3.5, i)); }
+    if (verdict) { const v0 = top(verdict), span = verdict.offsetHeight - vh; cue('verdict', [[v0, 1.8], [v0 + span * 0.9, 4.5]], 8); }
+    if (close) cue('fin', [[top(close) - vh * 0.25, 2.4]], 6);
+    cue('fin', [[document.documentElement.scrollHeight - vh, 2.2]], 0);
+    return list;
+  };
+  const ease = (t) => 0.5 - Math.cos(Math.PI * t) / 2;
+  let list = [], idx = 0, busy = false, auto = false, paused = false, holdTimer = 0, raf2 = 0, quietUntil = 0;
+  const stepping = () => settings.mode === 'step' || auto;
+  const paint = () => {
+    if (autoBtn) { autoBtn.textContent = !auto ? 'Lecture auto' : paused ? 'Reprendre' : 'Pause'; autoBtn.setAttribute('aria-pressed', auto && !paused); }
+    if (stepper) { stepper.hidden = !stepping(); stepN.textContent = `${idx + 1} / ${list.length}`; stepTip.textContent = auto ? (paused ? 'En pause · Espace pour reprendre' : 'Lecture auto · Espace pour mettre en pause') : 'Espace ou molette pour avancer'; }
+    root.classList.toggle('stepped', stepping());
+  };
+  const travel = (path, speed, done) => {
+    let leg = 0, from = scrollY, t0 = performance.now();
+    const run = (now) => {
+      if (leg >= path.length) { done(); return; }
+      const [y, secs] = path[leg], k = Math.min(1, (now - t0) / (secs * 1000 / speed));
+      scrollTo(0, from + (y - from) * ease(k));
+      if (k >= 1) { leg++; from = scrollY; t0 = now; }
+      raf2 = requestAnimationFrame(run);
+    };
+    raf2 = requestAnimationFrame(run);
+  };
+  const goTo = (i, back) => {
+    if (busy || i < 0 || i >= list.length) return;
+    clearTimeout(holdTimer); busy = true; const c = list[i], prev = list[idx]; idx = i; paint();
+    if (!back && typeof c.act === 'number') flip(cardsAll[c.act], true);
+    if (back && prev && typeof prev.act === 'number') flip(cardsAll[prev.act], false);
+    /* going back retraces to where that cue ends, quicker */
+    const path = back ? [[(c.path.length ? c.path[c.path.length - 1][0] : scrollY), 1.2]] : c.path;
+    travel(path, 1, () => { busy = false; quietUntil = performance.now() + 350; if (auto && !paused) schedule(); });
+  };
+  const next = () => goTo(idx + 1, false), prev = () => goTo(idx - 1, true);
+  const schedule = () => { clearTimeout(holdTimer); if (idx >= list.length - 1) { auto = false; paint(); return; } holdTimer = setTimeout(() => { if (auto && !paused) next(); }, list[idx].hold * 1000); };
+  const nearest = () => { let best = 0, d = Infinity; list.forEach((c, i) => { if (!c.path.length) return; const y = c.path[c.path.length - 1][0], dd = Math.abs(y - scrollY); if (dd < d) { d = dd; best = i; } }); return best; };
+  const startAuto = () => { auto = true; paused = false; idx = nearest(); paint(); schedule(); };
+  const stopAuto = () => { auto = false; paused = false; clearTimeout(holdTimer); paint(); };
+  const enable = () => { sizeRide(); list = cues(); idx = nearest(); paint(); };
+
+  if (autoBtn && wide.matches) {
     autoBtn.hidden = false;
-    const top = (el) => el.getBoundingClientRect().top + scrollY;
-    const plan = () => {
-      const vh = innerHeight, steps = [], go = (y, travel, hold, act) => steps.push({ y: Math.max(0, Math.round(y)), travel, hold, act });
-      const fiche = document.getElementById('fiche'), avis = document.getElementById('avis'), deck = $('.deck'), close = $('.close-line');
-      go(0, 0.01, 3);
-      if (fiche) go(top(fiche) - vh * 0.12, 5, 6);
-      if (portal) { go(top(portal), 4, 0.5); go(top(portal) + (portal.offsetHeight - vh) * 0.3, 8, 1.5); go(top(portal) + (portal.offsetHeight - vh), 16, 4); }
-      if (ride) { go(top(ride), 4, 2.5); go(top(ride) + (ride.offsetHeight - vh), 24, 3); }
-      if (avis) go(top(avis) - vh * 0.1, 4, 12);
-      if (deck) go(top(deck) - vh * 0.3, 4, 1, 'cards');
-      if (verdict) go(top(verdict) + (verdict.offsetHeight - vh) * 0.9, 9, 7);
-      if (close) go(top(close) - vh * 0.25, 4, 5);
-      go(document.documentElement.scrollHeight - vh, 5, 0);
-      return steps;
-    };
-    const ease = (t) => 0.5 - Math.cos(Math.PI * t) / 2;
-    let on = false, paused = false, steps = [], idx = 0, from = 0, t0 = 0, phase = 'travel', raf = 0, last = 0;
-    const label = () => { autoBtn.textContent = !on ? 'Lecture auto' : paused ? 'Reprendre' : 'Pause'; autoBtn.setAttribute('aria-pressed', on && !paused); root.classList.toggle('auto-on', on); };
-    const stop = () => { on = false; paused = false; cancelAnimationFrame(raf); label(); };
-    const flipCards = (done) => {
-      const cs = $$('.card').filter((c) => c.getAttribute('aria-pressed') !== 'true'); let i = 0;
-      const next = () => { if (!on) return; if (paused) { setTimeout(next, 300); return; } if (i >= cs.length) { setTimeout(done, 2500); return; } cs[i++].click(); setTimeout(next, 2800); };
-      next();
-    };
-    const begin = (i) => { idx = i; if (idx >= steps.length) { stop(); return; } from = scrollY; t0 = performance.now(); phase = 'travel'; };
-    const tick = (now) => {
-      if (!on) return;
-      if (paused) { t0 += now - last; last = now; raf = requestAnimationFrame(tick); return; }
-      last = now;
-      const st = steps[idx], el = (now - t0) / 1000;
-      if (phase === 'travel') {
-        const k = Math.min(1, el / st.travel); scrollTo(0, from + (st.y - from) * ease(k));
-        if (k >= 1) { phase = 'hold'; t0 = now; if (st.act === 'cards') { phase = 'act'; flipCards(() => { if (on) begin(idx + 1); }); } }
-      } else if (phase === 'hold' && el >= st.hold) begin(idx + 1);
-      raf = requestAnimationFrame(tick);
-    };
-    const start = () => {
-      if (!root.classList.contains('ready')) { window.introSkipped = true; ready(); }
-      sizeRide(); steps = plan(); on = true; paused = false; label();
-      let i = 0; while (i < steps.length - 1 && steps[i].y < scrollY - 4) i++;
-      begin(scrollY < 4 ? 0 : i); last = performance.now(); raf = requestAnimationFrame(tick);
-    };
-    autoBtn.addEventListener('click', () => { if (!on) start(); else { paused = !paused; label(); } });
-    addEventListener('keydown', (e) => {
-      if (e.key === 'p' || e.key === 'P') { if (on) stop(); else start(); }
-      else if (on && e.key === ' ') { e.preventDefault(); paused = !paused; label(); }
-      else if (on && e.key === 'Escape') stop();
-    });
-    ['wheel', 'touchmove'].forEach((ev) => addEventListener(ev, () => { if (on) stop(); }, { passive: true }));
-    addEventListener('resize', () => { if (on) steps = plan(); });
-    if (new URLSearchParams(location.search).has('auto')) {
-      const wait = setInterval(() => { if (root.classList.contains('ready')) { clearInterval(wait); setTimeout(start, 2500); } }, 200);
-    }
+    autoBtn.addEventListener('click', () => { if (!auto) startAuto(); else { paused = !paused; paint(); if (!paused && !busy) schedule(); else clearTimeout(holdTimer); } });
   }
+  if (!wide.matches) settings.mode = 'free'; /* phones scroll normally */
+  addEventListener('wheel', (e) => {
+    if (!opened || !stepping()) return; e.preventDefault();
+    if (auto) return; if (busy || performance.now() < quietUntil || Math.abs(e.deltaY) < 8) return;
+    if (e.deltaY > 0) next(); else prev();
+  }, { passive: false });
+  addEventListener('keydown', (e) => {
+    if (!opened) return;
+    if (e.key === 'p' || e.key === 'P') { if (auto) stopAuto(); else startAuto(); return; }
+    if (!stepping()) return;
+    const fwd = ['ArrowDown', 'ArrowRight', 'PageDown', ' ', 'Enter'].includes(e.key), bwd = ['ArrowUp', 'ArrowLeft', 'PageUp'].includes(e.key);
+    if (e.key === ' ' && e.target.closest && e.target.closest('button, a')) return;
+    if (auto) { if (e.key === ' ') { e.preventDefault(); paused = !paused; paint(); if (!paused && !busy) schedule(); else clearTimeout(holdTimer); } else if (e.key === 'Escape') stopAuto(); else if (fwd || bwd) e.preventDefault(); return; }
+    if (fwd) { e.preventDefault(); next(); } else if (bwd) { e.preventDefault(); prev(); }
+    else if (e.key === 'Home') { e.preventDefault(); goTo(0, true); } else if (e.key === 'End') { e.preventDefault(); goTo(list.length - 1, false); }
+  });
+  /* Nav links jump to their cue */
+  links.forEach((a) => a.addEventListener('click', (e) => {
+    if (!stepping()) return; e.preventDefault(); const id = a.getAttribute('href').slice(1); const i = list.findIndex((c) => c.id === id);
+    if (i >= 0 && !busy) { clearTimeout(holdTimer); busy = true; idx = i; paint(); const c = list[i]; travel([[c.path[0][0], 1.4]], 1, () => { busy = false; if (c.path.length > 1) travel(c.path.slice(1), 1, () => {}); }); }
+  }));
+  $$('.hero .btn').forEach((a) => a.addEventListener('click', (e) => { if (!stepping()) return; e.preventDefault(); const id = a.getAttribute('href').slice(1); const i = list.findIndex((c) => c.id === id); if (i >= 0) goTo(i, false); }));
+  addEventListener('resize', () => { if (stepping()) { list = cues(); paint(); } });
+  const begun = () => { enable(); if (settings.mode === 'auto' || new URLSearchParams(location.search).has('auto')) setTimeout(startAuto, 1500); };
+  if (opened) begun(); else readyHooks.push(begun);
 })();

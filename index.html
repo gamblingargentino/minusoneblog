@@ -10,18 +10,52 @@
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="images/film/hero.jpg">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%23060a10%22/%3E%3Ctext x=%2216%22 y=%2222%22 font-size=%2216%22 text-anchor=%22middle%22 fill=%22%2340e0ff%22 font-family=%22Georgia%22%3E-1%3C/text%3E%3C/svg%3E">
-<link rel="stylesheet" href="style.css?v=1794550503">
+<link rel="stylesheet" href="style.css?v=1794577257">
 <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
 
 
-<div class="curtain" id="curtain" aria-hidden="true">
-  <canvas class="stage" id="stage"></canvas>
-  <p class="stage-load" id="stage-load">Chargement…</p>
-  <div class="bite-flash"></div>
+<div class="curtain" id="curtain">
+  <canvas class="stage" id="stage" aria-hidden="true"></canvas>
+  <audio id="emerge" src="sounds/emerge.mp3" preload="auto"></audio>
   <audio id="roar" src="sounds/roar.mp3" preload="auto"></audio>
-  <button class="curtain-skip" type="button" id="skip">Passer</button>
+
+  <form class="begin" id="begin" aria-labelledby="begin-title">
+    <p class="begin-mark">L’Écran de Minuit</p>
+    <h2 id="begin-title">Avant de commencer</h2>
+
+    <div class="field">
+      <label for="vol">Volume <output id="vol-out" for="vol">40 %</output></label>
+      <div class="field-row">
+        <input type="range" id="vol" name="vol" min="0" max="100" step="5" value="40">
+        <button class="btn btn--ghost btn--small" type="button" id="vol-test">Tester</button>
+      </div>
+    </div>
+
+    <fieldset class="field">
+      <legend>Défilement</legend>
+      <div class="seg">
+        <input type="radio" name="mode" id="m-step" value="step" checked><label for="m-step">Pas à pas</label>
+        <input type="radio" name="mode" id="m-auto" value="auto"><label for="m-auto">Automatique</label>
+        <input type="radio" name="mode" id="m-free" value="free"><label for="m-free">Libre</label>
+      </div>
+      <p class="help" id="mode-help">Un coup de molette, Espace ou une flèche lance la scène suivante. Elle se joue toute seule, tu avances quand tu veux.</p>
+    </fieldset>
+
+    <div class="field field--inline">
+      <input type="checkbox" id="intro-on" name="intro" checked>
+      <label for="intro-on">Jouer l’ouverture en 3D</label>
+      <span class="help" id="intro-status" role="status">Chargement du modèle…</span>
+    </div>
+
+    <div class="begin-actions">
+      <button class="btn btn--primary" type="submit" id="go" onclick="if(!window.site){document.documentElement.classList.add('ready');return false}">Commencer</button>
+      <button class="btn btn--ghost" type="button" id="fs">Plein écran</button>
+    </div>
+  </form>
+
+  <button class="curtain-skip" type="button" id="skip" hidden>Passer</button>
 </div>
 
 <header class="nav">
@@ -39,6 +73,7 @@
 </header>
 
 <div class="progress" aria-hidden="true"><i></i></div>
+<p class="stepper" id="stepper" hidden><span id="step-n"></span><span id="step-tip">Espace ou molette pour avancer</span></p>
 
 <main id="top">
 
@@ -46,7 +81,6 @@
   <section class="hero" aria-labelledby="hero-title">
     <figure class="hero-media"><img src="images/film/hero.jpg" width="2000" height="1398" alt="Godzilla surgit d’une vague au-dessus d’un avion, dans Godzilla Minus One" fetchpriority="high"></figure>
     <div class="hero-copy">
-      <p class="hero-kicker rise" style="--d:0.1s">L’Écran de Minuit · Des films qui marquent, des avis qui parlent.</p>
       <h1 id="hero-title" class="split">Godzilla Minus One</h1>
       <p class="lead rise" style="--d:0.55s">Un film de monstre qui parle du cœur humain.</p>
       <div class="actions rise" style="--d:0.7s">
@@ -204,7 +238,7 @@
 </footer>
 
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
-<script src="main.js?v=1794550503"></script>
-<script type="module" src="intro.js?v=1794550503"></script>
+<script src="main.js?v=1794577257"></script>
+<script type="module" src="intro.js?v=1794577257"></script>
 </body>
 </html>
