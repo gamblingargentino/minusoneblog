@@ -193,12 +193,32 @@ async function run() {
 
   /* ---- Timeline (seconds from the moment the model is ready) ----
      0.0–2.4  rises out of the sea through spray, wide low shot
-     2.4      roar starts (audio t = 0); glow, lightning and camera follow its loudness
-     2.4–6.0  camera settles on the hero photo's angle: low, front, head right of centre
-     6.2      crossfade into the hero photo */
-  const ROAR_AT = 2.4, END_AT = 6.2;
+     2.0      roar starts (audio t = 0) exactly as the jaw opens; glow, lightning and camera follow its loudness
+     2.0–6.6  the jaw stays open for the whole roar; camera settles on the hero photo's angle
+     7.0      the roar's last hit lands on the crossfade into the hero photo
+     The model's own clip opens the jaw at 1.4 s and shuts it by 4.3 s, so its time is remapped to the roar. */
+  const ROAR_AT = 2.0, END_AT = 7.0, VOLUME = 0.4;
+  /* Clip time for a given roar time: ease into the pre-roar pose, snap the jaw open on the attack,
+     hold it open (slow motion) through the roar, close on the tail */
+  const clipTime = (t, rt) => {
+    if (rt < 0) return 1.3 * sm(0, ROAR_AT, t);
+    if (rt < 0.2) return 1.3 + (rt / 0.2) * 0.3;
+    if (rt < 5.0) return 1.6 + ((rt - 0.2) / 4.8) * 1.7;
+    return 3.3 + Math.min(1, (rt - 5.0) / 0.8) * 1.0;
+  };
   const audio = document.getElementById('roar');
-  let roared = false;
+  if (audio) audio.volume = VOLUME;
+  let roared = false, locked = false;
+  /* Once the sound is really playing, line it up with the picture (covers decode and autoplay delay) */
+  if (audio) audio.addEventListener('playing', () => {
+    if (locked || ended) return; locked = true;
+    const want = clock.elapsedTime - ROAR_AT;
+    if (want > 0.08 && want < 5 && Math.abs(audio.currentTime - want) > 0.06) { try { audio.currentTime = want; } catch (e) {} }
+  });
+  /* Leaving early: the roar fades out instead of cutting or carrying on */
+  const fadeOut = () => { if (!audio || audio.paused) return; const v0 = audio.volume, t0 = performance.now();
+    const step = (now) => { const k = Math.min(1, (now - t0) / 700); audio.volume = v0 * (1 - k); if (k < 1) requestAnimationFrame(step); else { audio.pause(); audio.volume = VOLUME; } };
+    requestAnimationFrame(step); };
   /* If autoplay was blocked, a tap starts the roar at the right offset so it stays in sync */
   curtain.addEventListener('pointerdown', () => {
     const into = clock.elapsedTime - ROAR_AT;
@@ -219,20 +239,20 @@ async function run() {
   const tick = () => {
     if (ended) return;
     const dt = Math.min(clock.getDelta(), 0.05), t = clock.elapsedTime;
-    mixer.update(dt);
+    mixer.setTime(clipTime(t, t - ROAR_AT));
     skyU.uTime.value = t; seaU.uTime.value = t;
 
     /* Rise out of the water */
-    const rise = sm(0, 2.6, t);
+    const rise = sm(0, ROAR_AT + 0.3, t);
     holder.position.y = -H * 0.8 * (1 - rise);
     seaU.uRise.value = Math.max(0, 1 - Math.abs(t - 1.2) / 1.6);
     holder.rotation.y += (tx * 0.18 - holder.rotation.y) * 0.04;
 
     /* Spray bursts while he breaks the surface, again on the roar */
     const rt = t - ROAR_AT, L = loud(rt);
-    const emitRate = (t < 2.6 ? 1 - t / 2.6 : 0) * 1 + (L > 0.85 ? 0.5 : 0);
+    const emitRate = (t < ROAR_AT + 0.3 ? 1 - t / (ROAR_AT + 0.3) : 0) * 1 + (L > 0.85 ? 0.5 : 0);
     for (let i = 0; i < SPRAY; i++) {
-      if (sl[i] <= 0) { if (Math.random() < emitRate * 0.05) emit(i, t < 2.6 ? 1 : 0.6); else continue; }
+      if (sl[i] <= 0) { if (Math.random() < emitRate * 0.05) emit(i, t < ROAR_AT + 0.3 ? 1 : 0.6); else continue; }
       sl[i] -= dt; sv[i * 3 + 1] -= 14 * dt;
       sp[i * 3] += sv[i * 3] * dt; sp[i * 3 + 1] += sv[i * 3 + 1] * dt; sp[i * 3 + 2] += sv[i * 3 + 2] * dt;
       if (sl[i] <= 0 || sp[i * 3 + 1] < -1) { sl[i] = 0; sp[i * 3 + 1] = -99; }
@@ -262,7 +282,7 @@ async function run() {
     lookB.set(headP.x - 2.4, headP.y - 1.6, headP.z);
 
     /* Camera: wide and low, then lands on the hero photo's framing */
-    const k = sm(ROAR_AT - 0.4, END_AT - 0.6, t);
+    const k = sm(ROAR_AT - 0.3, END_AT - 1.2, t);
     camP.lerpVectors(camA, camB, k); look.lerpVectors(lookA, lookB, k);
     camP.x += Math.sin(t * 0.3) * 0.4 * (1 - k) + tx * 0.8 * (1 - k);
     camP.y += -ty * 0.6 * (1 - k);
@@ -272,7 +292,7 @@ async function run() {
     composer.render();
 
     if (t >= END_AT) { ended = true; finish(); setTimeout(() => { renderer.dispose(); }, 1800); return; }
-    if (window.introSkipped) { ended = true; setTimeout(() => renderer.dispose(), 1800); return; }
+    if (window.introSkipped) { ended = true; fadeOut(); setTimeout(() => renderer.dispose(), 1800); return; }
     requestAnimationFrame(tick);
   };
   curtain.classList.add('live');

@@ -19,6 +19,7 @@
 
   /* Sound toggle */
   const roar = document.getElementById('roar'), soundBtn = document.getElementById('sound');
+  if (roar) roar.volume = 0.4;
   let soundOn = false;
   const setSound = (on) => { soundOn = on; if (soundBtn) soundBtn.setAttribute('aria-pressed', on); if (!on && roar) roar.pause(); };
   const playRoar = () => { if (!roar) return Promise.resolve(); try { roar.currentTime = 0; } catch (e) {} return roar.play().then(() => setSound(true)).catch(() => {}); };
